@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/**",
+                "/home/s5305642/NGL/include/ngl",
+                "/lib64/**",
+                "/lib/**"
+            ],
+            "defines": [],
+            "compilerPath": "/opt/rh/llvm-toolset-7/root/usr/bin/clang",
+            "intelliSenseMode": "linux-clang-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
+    ],
+    "version": 4
+}
