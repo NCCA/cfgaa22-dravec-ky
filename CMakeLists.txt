@@ -12,6 +12,8 @@ if(NOT DEFINED CMAKE_TOOLCHAIN_FILE AND DEFINED ENV{CMAKE_TOOLCHAIN_FILE})
    set(CMAKE_TOOLCHAIN_FILE $ENV{CMAKE_TOOLCHAIN_FILE})
 endif()
 
+
+
 # Name of the project
 project(DraveckyCFGAA)
 # This is the name of the Exe change this and it will change everywhere
@@ -21,6 +23,8 @@ set(TargetName DraveckyCFGAA)
 find_package(NGL CONFIG REQUIRED)
 # Instruct CMake to run moc automatically when needed (Qt projects only)
 set(CMAKE_AUTOMOC ON)
+
+
 # find Qt libs
 # find Qt libs first we check for Version 6
 find_package(Qt6 COMPONENTS OpenGL Widgets QUIET )
@@ -38,12 +42,16 @@ set(CMAKE_CXX_EXTENSIONS ON)
 # Set the name of the executable we want to build
 add_executable(${TargetName})
 
+
 # Add NGL include path
 include_directories(include $ENV{HOME}/NGL/include)
 target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp  
 			${PROJECT_SOURCE_DIR}/src/NGLScene.cpp  
 			${PROJECT_SOURCE_DIR}/src/NGLSceneMouseControls.cpp  
 			${PROJECT_SOURCE_DIR}/include/NGLScene.h  
+            ${PROJECT_SOURCE_DIR}/src/GLDemo.cpp  
+            ${PROJECT_SOURCE_DIR}/include/GLDemo.h 
+            
 )
 
 target_link_libraries(${TargetName} PRIVATE Qt::Widgets Qt::OpenGL NGL)
