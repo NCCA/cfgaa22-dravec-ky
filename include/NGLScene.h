@@ -4,6 +4,7 @@
 #include "WindowParams.h"
 // this must be included after NGL includes else we get a clash with gl libs
 #include <QOpenGLWindow>
+#include "GLDemo.h"
 //----------------------------------------------------------------------------------------------------------------------
 /// @file NGLScene.h
 /// @brief this class inherits from the Qt OpenGLWindow and allows us to use NGL to draw OpenGL
@@ -74,9 +75,14 @@ private:
     //----------------------------------------------------------------------------------------------------------------------
     void wheelEvent( QWheelEvent *_event) override;
     /// @brief windows parameters for mouse control etc.
+
+    void timerEvent(QTimerEvent *_event) override;
+    QElapsedTimer m_timer;
     WinParams m_win;
     /// position for our model
     ngl::Vec3 m_modelPos;
+
+    GLDemo m_GLDemo;
 
 };
 

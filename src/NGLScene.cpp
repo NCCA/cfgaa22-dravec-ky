@@ -16,7 +16,6 @@ NGLScene::NGLScene()
 
 NGLScene::~NGLScene()
 {
-  GLDemo::destroy();
   std::cout<<"Shutting down NGL, removing VAO's and Shaders\n";
 }
 
@@ -36,8 +35,12 @@ void NGLScene::initializeGL()
 
   // disabled just to test doing it from scratch
   //ngl::NGLInit::initialize();
-  GLDemo::initialize();
 
+  m_timer.start();
+
+  m_GLDemo.initialize();
+
+  startTimer(50);
 }
 
 
@@ -47,8 +50,7 @@ void NGLScene::paintGL()
   // clear the screen and depth buffer
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glViewport(0,0,m_win.width,m_win.height);
-
-  GLDemo::render();
+  m_GLDemo.render(m_timer.elapsed());
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -71,5 +73,10 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
   }
   // finally update the GLWindow and re-draw
 
-    update();
+    //update();
+}
+
+void NGLScene::timerEvent(QTimerEvent *_event)
+{
+  update();
 }
