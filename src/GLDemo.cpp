@@ -4,6 +4,10 @@
 #include <string>
 #include <fstream>
 #include <QGLFormat>
+#include <ngl/Texture.h>
+#include <QImage>
+
+#define USEQIMAGE
 
 
 
@@ -17,18 +21,33 @@ void GLDemo::initialize()
     gl3wInit();
   
     float vertices[] = {
-     0.5f,  0.5f, 0.0f,  // top right
-     0.5f, -0.5f, 0.0f,  // bottom right
-    -0.5f, -0.5f, 0.0f,  // bottom left
-    -0.5f,  0.5f, 0.0f   // top left 
-    }; 
+        // positions          // colors           // texture coords
+        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+    };
     unsigned int indices[] = {  // note that we start from 0!
     0, 1, 3,   // first triangle
-    1, 2, 3    // second triangle
+    1, 2, 3     //second triangle
     };  
     std::cout<<"Initializing GLScene...";
 
     loadShaders();
+
+    m_image.load("img/groundText.png");
+
+    //TEXTURES
+    glGenTextures(1, &m_tex);
+    glBindTexture(GL_TEXTURE_2D, m_tex);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_image.width(), m_image.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, m_image.getPixels());
+    glGenerateMipmap(GL_TEXTURE_2D);
 
     //BUFFER PART
 
@@ -48,8 +67,14 @@ void GLDemo::initialize()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     //Linking Vertex Attributes - 1st parameter corresponds to vert shader input (location = 0)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3*sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8*sizeof(float), (void*)(3*sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2,2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6*sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
@@ -150,11 +175,13 @@ void GLDemo::loadShaders()
 
 void GLDemo::render(int elapsed_time)
 {
-    float greenValue = sin(elapsed_time/100.0f) / 2.0f + 0.5f;
-    int vertexColorLocation = glGetUniformLocation(m_shaderProgram, "ourColor");
+    //float greenValue = sin(elapsed_time/100.0f) / 2.0f + 0.5f;
+    //int vertexColorLocation = glGetUniformLocation(m_shaderProgram, "ourColor");
 
     glUseProgram(m_shaderProgram);
-    glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+    //glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+
+    glBindTexture(GL_TEXTURE_2D, m_tex);
 
     glBindVertexArray(m_VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
