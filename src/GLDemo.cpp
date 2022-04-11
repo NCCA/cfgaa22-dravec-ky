@@ -5,6 +5,9 @@
 #include <fstream>
 #include <QGLFormat>
 #include <ngl/Texture.h>
+#include <ngl/Vec4.h>
+#include <ngl/Util.h>
+#include <ngl/Transformation.h>
 #include <QImage>
 
 #define USEQIMAGE
@@ -20,17 +23,32 @@ void GLDemo::initialize()
     std::cout<<"Running OpenGL learning demo.\n";
     gl3wInit();
   
-    float vertices[] = {
-        // positions          // colors           // texture coords
-        0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-        0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+    GLfloat vertices[]=
+    {
+        1.f, 1.f, 1.f, 1.0f, 0.0f, 0.0f, //0
+        -1.f, 1.f, 1.f, 0.0f, 1.0f, 0.0f, //1
+        -1.f, 1.f, -1.f, 0.0f, 0.0f, 1.0f, //2
+        1.f, 1.f, -1.f, 1.0f, 1.0f, 1.0f, //3
+        1.f, -1.f, 1.f, 1.0f, 1.0f, 0.0f, //4
+        -1.f, -1.f, 1.f, 1.0f, 1.0f, 1.0f, //5
+        -1.f, -1.f, -1.f, 0.0f, 1.0f, 1.0f, //6
+        1.f, -1.f, -1.f, 1.0f, 0.0f, 1.0f //7
     };
-    unsigned int indices[] = {  // note that we start from 0!
-    0, 1, 3,   // first triangle
-    1, 2, 3     //second triangle
-    };  
+    GLuint indices[] =
+    {
+        0, 1, 3, //top 1
+        3, 1, 2, //top 2
+        2, 6, 7, //front 1
+        7, 3, 2, //front 2
+        7, 6, 5, //bottom 1
+        5, 4, 7, //bottom 2
+        5, 1, 4, //back 1
+        4, 1, 0, //back 2
+        4, 3, 7, //right 1
+        3, 4, 0, //right 2
+        5, 6, 2, //left 1
+        5, 1, 2  //left 2
+    };
     std::cout<<"Initializing GLScene...";
 
     loadShaders();

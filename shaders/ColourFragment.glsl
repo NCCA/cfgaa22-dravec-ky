@@ -8,5 +8,5 @@ uniform sampler2D outTex;
 
 void main()
 {
-    fragColour=texture(outTex, outUV);
+    fragColour=texture(outTex, outUV) * outColor;
 }

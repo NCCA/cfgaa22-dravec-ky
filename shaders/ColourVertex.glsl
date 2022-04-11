@@ -10,7 +10,7 @@ uniform mat4 MVP;
 
 void main()
 {
-    gl_Position = vec4(aPos,1.0);
+    gl_Position = MVP * vec4(aPos,1.0);
     outColor = vec4(aColor,1.0);
     outUV = aUV;
 }

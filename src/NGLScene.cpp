@@ -4,6 +4,7 @@
 #include "NGLScene.h"
 #include "GLDemo.h"
 #include <ngl/NGLInit.h>
+#include <ngl/Util.h>
 #include <ngl/VAOPrimitives.h>
 #include <iostream>
 
@@ -23,8 +24,10 @@ NGLScene::~NGLScene()
 
 void NGLScene::resizeGL(int _w , int _h)
 {
-  m_win.width  = static_cast<int>( _w * devicePixelRatio() );
+  m_win.width  = static_cast<int>( _w * devicePixelRatio()  );
   m_win.height = static_cast<int>( _h * devicePixelRatio() );
+
+  m_project = ngl::perspective(45.0f, float(_w)/_h, 0.1f, 120.0f);
 }
 
 
