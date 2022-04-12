@@ -35,7 +35,7 @@ set(CMAKE_CXX_EXTENSIONS ON)
 # Set the name of the executable we want to build
 add_executable(${TargetName})
 
-target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp  
+target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
 			${PROJECT_SOURCE_DIR}/src/NGLScene.cpp  
 			${PROJECT_SOURCE_DIR}/src/MainWindow.cpp  
 			${PROJECT_SOURCE_DIR}/src/NGLSceneMouseControls.cpp
@@ -47,6 +47,8 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
             ${PROJECT_SOURCE_DIR}/src/SceneManager.cpp  
             ${PROJECT_SOURCE_DIR}/include/SceneObject.h  
             ${PROJECT_SOURCE_DIR}/src/SceneObject.cpp 
+            ${PROJECT_SOURCE_DIR}/include/NGLSceneListView.h  
+            ${PROJECT_SOURCE_DIR}/src/NGLSceneListView.cpp 
 )
 
 if ( Qt6_FOUND )

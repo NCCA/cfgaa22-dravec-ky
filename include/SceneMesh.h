@@ -9,7 +9,9 @@ class SceneMesh : public ngl::AbstractMesh, public SceneObject
 {
   public:
     SceneMesh() noexcept: ngl::AbstractMesh(){};
-    virtual bool load(const std::string &_fname,CalcBB _calcBB=CalcBB::True) noexcept;
+    bool load(const std::string &_fname,CalcBB _calcBB=CalcBB::True) noexcept;
+    void draw() override {}
+     ~SceneMesh() {}
     
   private:
 

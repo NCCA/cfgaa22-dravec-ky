@@ -1,4 +1,6 @@
 # Peter Dravecky - Assignment - s5305642
+CURRENT STATE - you can load primitive teapot and cube and their indexes get added to the list next to the window.
+
 A OpenGL renderer with the following features (in order of implementation):
 
 - Able to load objects and move them around the scene

@@ -23,9 +23,33 @@
 }
   </string>
   </property>
-  <widget class="QWidget" name="centralwidget">
+  <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="s_mainWindowGridLayout">
     <item row="0" column="1">
+     <layout class="QGridLayout" name="s_listGridLayout">
+      <item row="1" column="0" colspan="2">
+       <widget class="QListView" name="m_objList">
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="0">
+     <spacer name="horizontalSpacer">
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>666</width>
+        <height>17</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="1" column="1">
      <widget class="QGroupBox" name="s_transformGB">
       <property name="styleSheet">
        <string notr="true"/>
@@ -178,7 +202,7 @@
       </layout>
      </widget>
     </item>
-    <item row="1" column="1">
+    <item row="2" column="1">
      <widget class="QGroupBox" name="s_drawGB">
       <property name="title">
        <string>Draw</string>
@@ -240,19 +264,6 @@
       </layout>
      </widget>
     </item>
-    <item row="0" column="0">
-     <spacer name="horizontalSpacer">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>40</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -261,11 +272,48 @@
      <x>0</x>
      <y>0</y>
      <width>972</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuObject">
+    <property name="title">
+     <string>Object</string>
+    </property>
+    <widget class="QMenu" name="menuAdd">
+     <property name="title">
+      <string>Add</string>
+     </property>
+     <addaction name="actionSphere"/>
+     <addaction name="actionTeapot"/>
+     <addaction name="actionCube"/>
+    </widget>
+    <addaction name="separator"/>
+    <addaction name="actionLoad"/>
+    <addaction name="menuAdd"/>
+   </widget>
+   <addaction name="menuObject"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionLoad">
+   <property name="text">
+    <string>Load...</string>
+   </property>
+  </action>
+  <action name="actionSphere">
+   <property name="text">
+    <string>Sphere</string>
+   </property>
+  </action>
+  <action name="actionTeapot">
+   <property name="text">
+    <string>Teapot</string>
+   </property>
+  </action>
+  <action name="actionCube">
+   <property name="text">
+    <string>Cube</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

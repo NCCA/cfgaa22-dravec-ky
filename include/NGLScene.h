@@ -10,10 +10,6 @@
 #include <QResizeEvent>
 #include <QOpenGLWidget>
 #include <memory>
-#include "SceneObject.h"
-#include "SceneManager.h"
-
-
 
 /// @file NGLScene.h
 /// @brief a basic Qt GL window class for ngl demos
@@ -94,7 +90,6 @@ private :
 	//----------------------------------------------------------------------------------------------------------------------
 	std::unique_ptr<ngl::Text> m_text;
 	bool m_objLoaded = false;
-	std::unique_ptr<SceneManager> m_scene;
 
 protected:
   //----------------------------------------------------------------------------------------------------------------------

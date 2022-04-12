@@ -17,7 +17,6 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 	m_wireframe=false;
 	m_rotation=0.0;
 	m_scale=1.0;
-	m_position=0.0;
 }
 
 constexpr auto shaderProgram="PBR";
@@ -71,7 +70,7 @@ void NGLScene::initializeGL()
   // ngl::ShaderLib::setUniform("roughness",0.38f);
   // ngl::ShaderLib::setUniform("ao",0.2f);
 
-  ngl::VAOPrimitives::createSphere("sphere",1.0,40);
+  //ngl::VAOPrimitives::createSphere("sphere",1.0,40);
 
   m_text=std::make_unique<ngl::Text>("fonts/Arial.ttf",18);
   m_text->setScreenSize(this->size().width(),this->size().height());
@@ -79,12 +78,13 @@ void NGLScene::initializeGL()
 
   m_curObj = std::unique_ptr<ngl::AbstractVAO>(ngl::VAOPrimitives::getVAOFromName("cube"));
   std::cout << "should print\n";
-  m_scene->addObject(std::string("sup bruh"));
+  //m_scene->addObject(std::string("sup bruh"));
   std::cout << "\nshould print";
 }
 
 void NGLScene::resizeGL( int _w, int _h )
 {
+  std::cout << "resizing";
   m_project=ngl::perspective( 45.0f, static_cast<float>( _w ) / _h, 0.05f, 350.0f );
   m_win.width  = static_cast<int>( _w * devicePixelRatio() );
   m_win.height = static_cast<int>( _h * devicePixelRatio() );
@@ -100,12 +100,7 @@ void NGLScene::loadMatricesToShader()
      ngl::Mat4 normalMatrix;
      ngl::Mat4 M;
    };
-
-    
-    transform t;
-    t.M = m_transform.getMatrix();
-
-    t.MVP=m_project*m_view*t.M;
+   transform t;
     t.normalMatrix=t.M;
     t.normalMatrix.inverse().transpose();
     ngl::ShaderLib::setUniformBuffer("TransformUBO",sizeof(transform),&t.MVP.m_00);
@@ -131,16 +126,10 @@ void NGLScene::paintGL()
   loadMatricesToShader();
 
   std::cout<< m_objLoaded;
-  if(m_objLoaded==false)
-  {
-    ngl::VAOPrimitives::draw("teapot");
-  }
-  else
-  {
-    m_curObj->bind();
-    m_curObj->draw();
-    m_curObj->unbind();
-  }
+
+  SceneManager::draw();
+
+
 
 	m_text->renderText(10,580,"Qt Gui Demo");
 }

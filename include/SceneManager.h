@@ -6,22 +6,39 @@
 #include <ngl/Mat4.h>
 #include <ngl/Text.h>
 #include <iostream>
+#include <QListView>
+#include <QStringListModel>
+
+#include "NGLScene.h"
+#include "NGLSceneListView.h"
 #include "SceneObject.h"
 #include "SceneMesh.h"
+
+//Temporary wrapper for calling VAOPrimitives draw functions using the Scene Manager for testing
+class ScenePrimitive : public SceneObject
+{
+  public:
+    ScenePrimitive(const std::string &_name);
+    void draw () override;
+    ~ScenePrimitive() {};
+};
 
 class SceneManager
 {
   public:
-    enum class ObjectType {MESH, LIGHT};
-    SceneManager() {}
-    ~SceneManager() {}
-    bool addObject(std::string &_name, ObjectType _type = ObjectType::MESH);
-    bool removeObject(int index);
+    static bool initialize(NGLScene * _scene, NGLSceneListView * _list);
+
+    enum class ObjectType {MESH, LIGHT, PRIMITIVE};
+    static bool addObject(const std::string &_name = "", ObjectType _type = ObjectType::MESH, const std::string &_path = NULL);
+    static bool removeObject(int index);
+    static bool draw();
+    static void loadObject();
 
   private:
-    std::vector<std::unique_ptr<SceneObject>> m_objects;
-    const std::array<std::string, 3> m_primitives = {"sphere", "teapot", "cube"};
-
+    static std::vector<std::unique_ptr<SceneObject>> m_objects;
+    static const std::array<std::string, 3> m_primitives;
+    static NGLScene * m_scene;
+    static NGLSceneListView * m_list;
 };
 
 #endif
