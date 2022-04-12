@@ -4,37 +4,30 @@ cmake_minimum_required(VERSION 3.12)
 # this is going to check the environment variable for CMAKE_TOOLCHAIN_FILE and this must point to where
 # vcpkg.cmake is in the University this is set in your .bash_profile to
 # export CMAKE_TOOLCHAIN_FILE=/public/devel/2020/vcpkg/scripts/buildsystems/vcpkg.cmake
-# to build see the NGL instructions 
-# Windows :- mkdir build; cd build ; cmake -DCMAKE_PREFIX_PATH=~/NGL/ .. ; cmake --build . 
-# Linux / Mac mkdir build; cd build; cmake -DCMAKE_PREFIX_PATH~/NGL/ .. ; make
 #-------------------------------------------------------------------------------------------
 if(NOT DEFINED CMAKE_TOOLCHAIN_FILE AND DEFINED ENV{CMAKE_TOOLCHAIN_FILE})
    set(CMAKE_TOOLCHAIN_FILE $ENV{CMAKE_TOOLCHAIN_FILE})
 endif()
-
-
-
 # Name of the project
-project(DraveckyCFGAA)
+project(QtNGLBuild)
 # This is the name of the Exe change this and it will change everywhere
-set(TargetName DraveckyCFGAA)
+set(TargetName QtNGL)
 # This will include the file NGLConfig.cmake, you need to add the location to this either using
 # -DCMAKE_PREFIX_PATH=~/NGL or as a system environment variable. 
 find_package(NGL CONFIG REQUIRED)
 # Instruct CMake to run moc automatically when needed (Qt projects only)
 set(CMAKE_AUTOMOC ON)
-
-
-# find Qt libs
+# Run the uic tools and search in the ui folder
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOUIC_SEARCH_PATHS ${PROJECT_SOURCE_DIR}/ui)
 # find Qt libs first we check for Version 6
-find_package(Qt6 COMPONENTS OpenGL Widgets QUIET )
+find_package(Qt6 COMPONENTS OpenGL Widgets OpenGLWidgets QUIET )
 if ( Qt6_FOUND )
     message("Found Qt6 Using that")
 else()
     message("Found Qt5 Using that")
     find_package(Qt5 COMPONENTS OpenGL Widgets REQUIRED)
 endif()
-
 # use C++ 17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -42,26 +35,32 @@ set(CMAKE_CXX_EXTENSIONS ON)
 # Set the name of the executable we want to build
 add_executable(${TargetName})
 
-
-# Add NGL include path
-include_directories(include $ENV{HOME}/NGL/include)
 target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp  
 			${PROJECT_SOURCE_DIR}/src/NGLScene.cpp  
-			${PROJECT_SOURCE_DIR}/src/NGLSceneMouseControls.cpp  
+			${PROJECT_SOURCE_DIR}/src/MainWindow.cpp  
+			${PROJECT_SOURCE_DIR}/src/NGLSceneMouseControls.cpp
+			${PROJECT_SOURCE_DIR}/include/MainWindow.h  
 			${PROJECT_SOURCE_DIR}/include/NGLScene.h  
-            ${PROJECT_SOURCE_DIR}/src/GLDemo.cpp  
-            ${PROJECT_SOURCE_DIR}/include/GLDemo.h 
-            
+            ${PROJECT_SOURCE_DIR}/include/SceneMesh.h  
+            ${PROJECT_SOURCE_DIR}/src/SceneMesh.cpp  
+            ${PROJECT_SOURCE_DIR}/include/SceneManager.h  
+            ${PROJECT_SOURCE_DIR}/src/SceneManager.cpp  
+            ${PROJECT_SOURCE_DIR}/include/SceneObject.h  
+            ${PROJECT_SOURCE_DIR}/src/SceneObject.cpp 
 )
 
-target_link_libraries(${TargetName} PRIVATE Qt::Widgets Qt::OpenGL NGL)
+if ( Qt6_FOUND )
+	target_link_libraries(${TargetName} PRIVATE  NGL Qt::Widgets Qt::OpenGL Qt::OpenGLWidgets)
+else()
+	target_link_libraries(${TargetName} PRIVATE  NGL Qt::Widgets Qt::OpenGL )
+endif()
 
-add_custom_target(${TargetName}CopyShaders ALL
+add_custom_target(CopyShadersAndfonts ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/shaders
     $<TARGET_FILE_DIR:${TargetName}>/shaders
-    
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_CURRENT_SOURCE_DIR}/img
-    $<TARGET_FILE_DIR:${TargetName}>/img
-)
+    ${CMAKE_CURRENT_SOURCE_DIR}/fonts
+    $<TARGET_FILE_DIR:${TargetName}>/fonts
+
+) 

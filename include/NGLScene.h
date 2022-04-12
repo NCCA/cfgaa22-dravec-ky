@@ -1,94 +1,149 @@
 #ifndef NGLSCENE_H_
 #define NGLSCENE_H_
+
+#include <ngl/Transformation.h>
 #include <ngl/Vec3.h>
+#include <ngl/Mat4.h>
+#include <ngl/Text.h>
 #include "WindowParams.h"
-// this must be included after NGL includes else we get a clash with gl libs
-#include <QOpenGLWindow>
-#include "GLDemo.h"
-//----------------------------------------------------------------------------------------------------------------------
+#include <QEvent>
+#include <QResizeEvent>
+#include <QOpenGLWidget>
+#include <memory>
+#include "SceneObject.h"
+#include "SceneManager.h"
+
+
+
 /// @file NGLScene.h
-/// @brief this class inherits from the Qt OpenGLWindow and allows us to use NGL to draw OpenGL
+/// @brief a basic Qt GL window class for ngl demos
 /// @author Jonathan Macey
 /// @version 1.0
-/// @date 10/9/13
+/// @date 10/10/10
 /// Revision History :
-/// This is an initial version used for the new NGL6 / Qt 5 demos
-/// @class NGLScene
+/// Initial Version 10/10/10 (Binary day ;-0 )
+/// @class GLWindow
 /// @brief our main glwindow widget for NGL applications all drawing elements are
 /// put in this file
-//----------------------------------------------------------------------------------------------------------------------
-class NGLScene : public QOpenGLWindow
+class NGLScene : public QOpenGLWidget
 {
-  public:
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief ctor for our NGL drawing class
-    /// @param [in] parent the parent window to the class
-    //----------------------------------------------------------------------------------------------------------------------
-    NGLScene();
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief dtor must close down ngl and release OpenGL resources
-    //----------------------------------------------------------------------------------------------------------------------
-    ~NGLScene() override;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief the initialize class is called once when the window is created and we have a valid GL context
-    /// use this to setup any default GL stuff
-    //----------------------------------------------------------------------------------------------------------------------
-    void initializeGL() override;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief this is called everytime we want to draw the scene
-    //----------------------------------------------------------------------------------------------------------------------
-    void paintGL() override;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief this is called everytime we resize the window
-    //----------------------------------------------------------------------------------------------------------------------
-    void resizeGL(int _w, int _h) override;
+Q_OBJECT        // must include this if you use Qt signals/slots
+public :
+  /// @brief Constructor for GLWindow
+  //----------------------------------------------------------------------------------------------------------------------
+  /// @brief Constructor for GLWindow
+  /// @param [in] _parent the parent window to create the GL context in
+  //----------------------------------------------------------------------------------------------------------------------
+  NGLScene(QWidget *_parent );
 
-    ngl::Mat4 m_project;
-    ngl::Mat4 m_view;
+		/// @brief dtor
+  ~NGLScene() override;
+ public slots :
+	/// @brief a slot to toggle wireframe mode
+	/// @param[in] _mode the mode passed from the toggle
+	/// button
+	void toggleWireframe( bool _mode	 );
+	/// @brief set the X rotation value
+	/// @parm[in] _x the value to set
+	void setXRotation( double _x	);
+	/// @brief set the Y rotation value
+	/// @parm[in] _y the value to set
+	void setYRotation( double _y	);
+	/// @brief set the Z rotation value
+	/// @parm[in] _z the value to set
+	void setZRotation( double _z	);
+	/// @brief set the X scale value
+	/// @parm[in] _x the value to set
+	void setXScale( double _x	);
+	/// @brief set the Y scale value
+	/// @parm[in] _y the value to set
+	void setYScale( double _y	);
+	/// @brief set the Z scale value
+	/// @parm[in] _z the value to set
+	void setZScale( double _z	);
 
-private:
+	/// @brief set the X position value
+	/// @parm[in] _x the value to set
+	void setXPosition( double _x	);
+	/// @brief set the Y position value
+	/// @parm[in] _y the value to set
+	void setYPosition(double _y);
+	/// @brief set the Z position value
+	/// @parm[in] _z the value to set
+	void setZPosition(double _z	);
+	/// @brief set the draw object
+	/// @param[in] _i the index of the object
+	void setObjectMode(int _i);
+	/// @brief a slot to set the colour
+	void setColour();
+	void loadObj();
+	void setLoadedObj();
 
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief Qt Event called when a key is pressed
-    /// @param [in] _event the Qt event to query for size etc
-    //----------------------------------------------------------------------------------------------------------------------
-    void keyPressEvent(QKeyEvent *_event) override;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief this method is called every time a mouse is moved
-    /// @param _event the Qt Event structure
-    //----------------------------------------------------------------------------------------------------------------------
-    void mouseMoveEvent (QMouseEvent * _event ) override;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief this method is called everytime the mouse button is pressed
-    /// inherited from QObject and overridden here.
-    /// @param _event the Qt Event structure
-    //----------------------------------------------------------------------------------------------------------------------
-    void mousePressEvent ( QMouseEvent *_event) override;
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief this method is called everytime the mouse button is released
-    /// inherited from QObject and overridden here.
-    /// @param _event the Qt Event structure
-    //----------------------------------------------------------------------------------------------------------------------
-    void mouseReleaseEvent ( QMouseEvent *_event ) override;
+private :
+	/// @brief m_wireframe mode
+	bool m_wireframe;
+	/// @brief rotation data
+  ngl::Vec3 m_rotation;
+	/// @brief scale data
+  ngl::Vec3 m_scale;
+	/// @brief position data
+  ngl::Vec3 m_position;
+	/// @brief our object to draw
+	//----------------------------------------------------------------------------------------------------------------------
+	// text for rendering
+	//----------------------------------------------------------------------------------------------------------------------
+	std::unique_ptr<ngl::Text> m_text;
+	bool m_objLoaded = false;
+	std::unique_ptr<SceneManager> m_scene;
 
-    //----------------------------------------------------------------------------------------------------------------------
-    /// @brief this method is called everytime the mouse wheel is moved
-    /// inherited from QObject and overridden here.
-    /// @param _event the Qt Event structure
-    //----------------------------------------------------------------------------------------------------------------------
-    void wheelEvent( QWheelEvent *_event) override;
-    /// @brief windows parameters for mouse control etc.
+protected:
+  //----------------------------------------------------------------------------------------------------------------------
+  /// @brief the windows params such as mouse and rotations etc
+  //----------------------------------------------------------------------------------------------------------------------
+  WinParams m_win;
+  /// @brief  The following methods must be implimented in the sub class
+  /// this is called when the window is created
+  void initializeGL() override;
 
-    void timerEvent(QTimerEvent *_event) override;
-    QElapsedTimer m_timer;
-    WinParams m_win;
-    /// position for our model
-    ngl::Vec3 m_modelPos;
+  /// @brief this is called whenever the window is re-sized
+  /// @param[in] _w the width of the resized window
+  /// @param[in] _h the height of the resized window
+  void resizeGL(int _w , int _h) override;
+  /// @brief this is the main gl drawing routine which is called whenever the window needs to
+  // be re-drawn
+  void paintGL() override;
 
-    GLDemo m_GLDemo;
+  /// @brief our model position
+  ngl::Vec3 m_modelPos;
+  /// @brief our camera
+  ngl::Mat4 m_view;
+  ngl::Mat4 m_project;
+	/// @brief our transform for objects
+	ngl::Transformation m_transform;
+
+	std::unique_ptr<ngl::AbstractVAO> m_curObj;
+	std::unique_ptr<ngl::AbstractVAO> m_nextObj;
+private :
+  /// @brief this method is called every time a mouse is moved
+  /// @param _event the Qt Event structure
+
+  void mouseMoveEvent (QMouseEvent * _event   ) override;
+  /// @brief this method is called everytime the mouse button is pressed
+  /// inherited from QObject and overridden here.
+  /// @param _event the Qt Event structure
+
+  void mousePressEvent ( QMouseEvent *_event  ) override;
+
+  /// @brief this method is called everytime the mouse button is released
+  /// inherited from QObject and overridden here.
+  /// @param _event the Qt Event structure
+  void mouseReleaseEvent (QMouseEvent *_event ) override;
+  void wheelEvent( QWheelEvent* _event ) override;
+
+  void loadMatricesToShader( );
+
+	
 
 };
-
-
 
 #endif

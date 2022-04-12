@@ -1,16 +1,17 @@
 # Peter Dravecky - Assignment - s5305642
-[Initial Idea]
-A OpenGL PBR Renderer
-Goals [In order of importance]
+A OpenGL renderer with the following features (in order of implementation):
 
-- render an object with a basic shader
-- set up a Qt UI
-- different light types
-- able to load models
-- UV mapping support - loading metalic/roughness workflow textures
+- Able to load objects and move them around the scene
+    - create a way to load objects that aren't purely made of triangles
+    - create a structure for managing selection of objects and loading textures
+    - Create a Qt layout which allows selection of objects and changing of their properties
 
-Explore:
-- forward rendering
-- instancing
-- particles?
-- volumetrics/ray-marching
+- Create support for each object having their own textures using PBR shading
+    - should~ be fairly straightforward
+
+- Lights -  directional, multiple point lights
+- Shadow-Mapping
+    - Forward Renderer
+
+Stretch Goals:
+ - Global Illumination
