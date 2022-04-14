@@ -10,7 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), m_ui(new Ui::MainW
   m_ui->setupUi(this);
 
   m_gl= new  NGLScene(this);
-  m_list = new NGLSceneListView(this);
+  m_list = new NGLSceneTreeView(this);
 
   SceneManager::initialize(m_gl, m_list);
 
@@ -62,7 +62,6 @@ void MainWindow::loadObjectFromFile()
 
 void MainWindow::loadObject(const std::string &_value)
 {
-  std::cout << "Adding " << _value;
   SceneManager::addObject("", SceneManager::ObjectType::PRIMITIVE, _value);
 
 }

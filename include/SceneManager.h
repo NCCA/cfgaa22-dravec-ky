@@ -10,7 +10,7 @@
 #include <QStringListModel>
 
 #include "NGLScene.h"
-#include "NGLSceneListView.h"
+#include "NGLSceneTreeView.h"
 #include "SceneObject.h"
 #include "SceneMesh.h"
 
@@ -26,7 +26,7 @@ class ScenePrimitive : public SceneObject
 class SceneManager
 {
   public:
-    static bool initialize(NGLScene * _scene, NGLSceneListView * _list);
+    static bool initialize(NGLScene * _scene, NGLSceneTreeView * _list);
 
     enum class ObjectType {MESH, LIGHT, PRIMITIVE};
     static bool addObject(const std::string &_name = "", ObjectType _type = ObjectType::MESH, const std::string &_path = NULL);
@@ -35,10 +35,13 @@ class SceneManager
     static void loadObject();
 
   private:
-    static std::vector<std::unique_ptr<SceneObject>> m_objects;
+    static std::vector<std::shared_ptr<SceneObject>> m_objects;
+    static std::shared_ptr<SceneObject> parent;
     static const std::array<std::string, 3> m_primitives;
     static NGLScene * m_scene;
-    static NGLSceneListView * m_list;
+    static NGLSceneTreeView * m_list;
+    static int new_id;
+    static std::shared_ptr<SceneObject> m_root;
 };
 
 #endif

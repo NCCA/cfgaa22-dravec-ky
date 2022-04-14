@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include "NGLScene.h"
-#include "NGLSceneListView.h"
+#include "NGLSceneTreeView.h"
 
 namespace Ui {
     class MainWindow;
@@ -24,7 +24,7 @@ private:
         
 		/// @brief our openGL widget
 		NGLScene *m_gl;
-        NGLSceneListView *m_list;
+        NGLSceneTreeView *m_list;
 };
 
 

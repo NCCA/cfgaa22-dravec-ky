@@ -47,8 +47,10 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
             ${PROJECT_SOURCE_DIR}/src/SceneManager.cpp  
             ${PROJECT_SOURCE_DIR}/include/SceneObject.h  
             ${PROJECT_SOURCE_DIR}/src/SceneObject.cpp 
-            ${PROJECT_SOURCE_DIR}/include/NGLSceneListView.h  
-            ${PROJECT_SOURCE_DIR}/src/NGLSceneListView.cpp 
+            ${PROJECT_SOURCE_DIR}/include/NGLSceneTreeView.h  
+            ${PROJECT_SOURCE_DIR}/src/NGLSceneTreeView.cpp 
+            ${PROJECT_SOURCE_DIR}/include/SceneTreeModel.h  
+            ${PROJECT_SOURCE_DIR}/src/SceneTreeModel.cpp 
 )
 
 if ( Qt6_FOUND )
