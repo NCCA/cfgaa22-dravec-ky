@@ -17,7 +17,8 @@ class NGLSceneTreeView: public QTreeView
     std::shared_ptr<SceneObject> getSceneRoot() const;
 
   public slots:
-    void push_back(std::shared_ptr<SceneObject> obj);
+    void add(std::shared_ptr<SceneObject> obj);
+    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     
 
   private:
@@ -27,6 +28,10 @@ class NGLSceneTreeView: public QTreeView
     // QModelIndexList selectedIndexes() const override;
     // void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override;
     void keyPressEvent(QKeyEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    
+    
+
 };
 
 #endif

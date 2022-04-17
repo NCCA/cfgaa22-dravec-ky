@@ -4,14 +4,16 @@
 #include <QTreeView>
 #include <QStringListModel>
 #include <QAbstractItemModel>
+#include <iostream>
 #include "SceneObject.h"
 
 class IndexWrapper
 {
+  //
   public:
     std::shared_ptr<SceneObject> object;
     explicit IndexWrapper(std::shared_ptr<SceneObject> _object) {object = _object;}
-    ~IndexWrapper() {}
+    ~IndexWrapper() {std::cout<<"IndexWrapper Destroyed\n";}
     QVector<QVariant> q_data;
 };
 
@@ -21,9 +23,7 @@ class SceneTreeModel: public QAbstractItemModel
     Q_OBJECT
   public:
     explicit SceneTreeModel(const QStringList &headers, const QString &data, QObject *parent = nullptr);
-    ~SceneTreeModel() {}
-
-    bool setObject(const QModelIndex &index, std::shared_ptr<SceneObject> _object);
+    ~SceneTreeModel();
 
     QVariant data(const QModelIndex &index, int role) const override;
 
@@ -55,10 +55,16 @@ class SceneTreeModel: public QAbstractItemModel
 
     bool insertRows(int position, int rows,
                     const QModelIndex &parent = QModelIndex()) override;
+
     bool removeRows(int position, int rows,
                     const QModelIndex &parent = QModelIndex()) override;
 
+    
+
     std::shared_ptr<SceneObject> getRootObject() const {return m_rootObject;}
+
+    bool insertSceneObject(int _pos, std::shared_ptr<SceneObject> _object, const QModelIndex &_parent = QModelIndex());
+    bool removeSceneObject(const QModelIndex &_obj);
 
   private:
     std::shared_ptr<SceneObject> getItem(const QModelIndex &index) const;

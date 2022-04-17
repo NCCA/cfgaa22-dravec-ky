@@ -72,8 +72,6 @@ public :
 	void setObjectMode(int _i);
 	/// @brief a slot to set the colour
 	void setColour();
-	void loadObj();
-	void setLoadedObj();
 
 private :
 	/// @brief m_wireframe mode
@@ -89,7 +87,6 @@ private :
 	// text for rendering
 	//----------------------------------------------------------------------------------------------------------------------
 	std::unique_ptr<ngl::Text> m_text;
-	bool m_objLoaded = false;
 
 protected:
   //----------------------------------------------------------------------------------------------------------------------
@@ -115,9 +112,6 @@ protected:
   ngl::Mat4 m_project;
 	/// @brief our transform for objects
 	ngl::Transformation m_transform;
-
-	std::unique_ptr<ngl::AbstractVAO> m_curObj;
-	std::unique_ptr<ngl::AbstractVAO> m_nextObj;
 private :
   /// @brief this method is called every time a mouse is moved
   /// @param _event the Qt Event structure

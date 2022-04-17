@@ -37,13 +37,16 @@ class SceneObject
     bool removeColumns(int position, int columns) {return false;}
 
     int indexOf(std::shared_ptr<SceneObject> _child) const;
+
+    ngl::Transformation transform;
     
   protected:
 
     void setParent(std::shared_ptr<SceneObject> _parent);
     void addChild(std::shared_ptr<SceneObject> _child);
 
-    ngl::Transformation m_transform;
+    
+
     std::vector<std::shared_ptr<SceneObject>> m_children;
     std::shared_ptr<SceneObject> m_parent;
 

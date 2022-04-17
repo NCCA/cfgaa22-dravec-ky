@@ -30,9 +30,9 @@ class SceneManager
 
     enum class ObjectType {MESH, LIGHT, PRIMITIVE};
     static bool addObject(const std::string &_name = "", ObjectType _type = ObjectType::MESH, const std::string &_path = NULL);
-    static bool removeObject(int index);
     static bool draw();
     static void loadObject();
+    static void update();
 
   private:
     static std::vector<std::shared_ptr<SceneObject>> m_objects;

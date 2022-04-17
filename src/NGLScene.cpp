@@ -57,7 +57,7 @@ void NGLScene::initializeGL()
   ngl::ShaderLib::linkProgramObject( shaderProgram );
   // and make it active ready to load values
   ngl::ShaderLib::use( shaderProgram );
-  ngl::ShaderLib::setUniform( "camPos", eye );
+  //ngl::ShaderLib::setUniform( "camPos", eye );
 
   // now a light
   // setup the default shader material and light porerties
@@ -75,11 +75,6 @@ void NGLScene::initializeGL()
   m_text=std::make_unique<ngl::Text>("fonts/Arial.ttf",18);
   m_text->setScreenSize(this->size().width(),this->size().height());
   m_text->setColour(1.0,1.0,1.0);
-
-  m_curObj = std::unique_ptr<ngl::AbstractVAO>(ngl::VAOPrimitives::getVAOFromName("cube"));
-  std::cout << "should print\n";
-  //m_scene->addObject(std::string("sup bruh"));
-  std::cout << "\nshould print";
 }
 
 void NGLScene::resizeGL( int _w, int _h )
@@ -125,11 +120,7 @@ void NGLScene::paintGL()
 
   loadMatricesToShader();
 
-  std::cout<< m_objLoaded;
-
   SceneManager::draw();
-
-
 
 	m_text->renderText(10,580,"Qt Gui Demo");
 }
@@ -210,30 +201,4 @@ void NGLScene::setColour()
     ngl::ShaderLib::setUniform("albedo",static_cast<float>(colour.redF()),static_cast<float>(colour.greenF()),static_cast<float>(colour.blueF()));
     update();
 	}
-}
-
-void NGLScene::loadObj()
-{
-    auto fileName = QFileDialog::getOpenFileName(this, tr("Open OBJ File"), "/", tr("Obj Files (*.obj)"));  
-    std::cout << fileName.toStdString();
-    ngl::Obj obj;
-
-    if(obj.load(fileName.toStdString(),ngl::AbstractMesh::CalcBB::False))
-    {
-      obj.createVAO();
-      m_nextObj = obj.moveVAO();
-      m_objLoaded = true;
-    }
-
-    
-}
-
-void NGLScene::setLoadedObj()
-{
-  if(m_nextObj != nullptr)
-  {
-    m_curObj.swap(m_nextObj);
-    m_nextObj.release();
-  }
-
 }

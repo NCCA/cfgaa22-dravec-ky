@@ -34,6 +34,7 @@ bool SceneManager::initialize(NGLScene * _scene, NGLSceneTreeView * _list)
 bool SceneManager::draw()
 {
     m_root->drawInherited();
+    return true;
 }
 
 bool SceneManager::addObject(const std::string &_name, ObjectType _type, const std::string &_path)
@@ -56,14 +57,15 @@ bool SceneManager::addObject(const std::string &_name, ObjectType _type, const s
         }
     }
 
-    m_list->push_back(obj);   
-    m_scene->update();
+    m_list->add(obj);   
+    update();
 
     ++new_id;
     return true;
 }
 
-bool removeObject(int index)
+void SceneManager::update()
 {
-
+    m_scene->update();
+    m_list->update();
 }
