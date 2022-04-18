@@ -4,16 +4,15 @@
 SceneObject::SceneObject()
 {
     std::cout << "Scene Object Created!\n";
-    q_data.push_back("object");
 
 }
 
 void SceneObject::setParentChild(std::shared_ptr<SceneObject> _parent, std::shared_ptr<SceneObject> _child)
 {
-    std::cout << "\nSetting parent...";
-    _child->setParent(_parent);
-    std::cout << "\nSetting child...";
-    _parent->addChild(_child);
+    if(_child)
+        _child->setParent(_parent);
+    if(_parent)
+        _parent->addChild(_child);
 }
 
 std::shared_ptr<SceneObject> SceneObject::getChild(int index)
@@ -38,20 +37,6 @@ int SceneObject::indexOf(std::shared_ptr<SceneObject> _child) const
     return (it-m_children.begin());
 }
 
-bool SceneObject::setData(const QVariant &value)
-{
-    if(q_data.empty())
-        q_data.push_back(value);
-    else q_data[0] = value;
-
-    return true;
-}
-
-QVariant SceneObject::data() const
-{
-    return q_data[0];
-}
-
 void SceneObject::setParent(std::shared_ptr<SceneObject> _parent)
 {
     m_parent = _parent;
@@ -63,7 +48,7 @@ void SceneObject::addChild(std::shared_ptr<SceneObject> _child)
 bool SceneObject::removeChild(int index)
 {
     
-    std::cout << "Instances before deleting: "<<m_children[index].use_count() << std::endl;
+    std::cout << "Instances before deleting from parent: "<<m_children[index].use_count() << std::endl;
     m_children.erase(m_children.begin() + index);
     
     return true;
@@ -76,10 +61,10 @@ SceneObject::~SceneObject()
 
 void SceneObject::drawInherited()
 {
-    std::cout << "\nObject " << m_name << " is drawing its children;\n";
+    //std::cout << "\nObject " << m_name << " is drawing its children;\n";
     for(auto child : m_children)
     {
-        std::cout << child->m_name << std::endl;
+        //std::cout << child->m_name << std::endl;
         child->draw();
         child->drawInherited();
     }

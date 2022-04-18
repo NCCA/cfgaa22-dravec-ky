@@ -79,7 +79,6 @@ void NGLScene::initializeGL()
 
 void NGLScene::resizeGL( int _w, int _h )
 {
-  std::cout << "resizing";
   m_project=ngl::perspective( 45.0f, static_cast<float>( _w ) / _h, 0.05f, 350.0f );
   m_win.width  = static_cast<int>( _w * devicePixelRatio() );
   m_win.height = static_cast<int>( _h * devicePixelRatio() );
@@ -96,6 +95,9 @@ void NGLScene::loadMatricesToShader()
      ngl::Mat4 M;
    };
    transform t;
+    t.M=m_transform.getMatrix();
+
+    t.MVP=m_project*m_view*t.M;
     t.normalMatrix=t.M;
     t.normalMatrix.inverse().transpose();
     ngl::ShaderLib::setUniformBuffer("TransformUBO",sizeof(transform),&t.MVP.m_00);

@@ -62,6 +62,7 @@ class TreeItem
 {
 public:
     explicit TreeItem(const QVector<QVariant> &data, TreeItem *parent = nullptr);
+    TreeItem(std::shared_ptr<SceneObject> _object, TreeItem *_parent = nullptr);
     ~TreeItem();
 
     TreeItem *child(int number);
@@ -76,6 +77,12 @@ public:
     int childNumber() const;
     bool setData(int column, const QVariant &value);
 
+    //Scene Addon
+    bool insertChildObject(int position, std::shared_ptr<SceneObject> _object);
+    bool removeChildObject(int position);
+    std::shared_ptr<SceneObject> sceneObject = nullptr;
+    bool setStringData(std::string &_name);
+
 private:
     QVector<TreeItem*> childItems;
     QVector<QVariant> itemData;
@@ -87,10 +94,8 @@ class SceneTreeModel: public QAbstractItemModel
 {
     Q_OBJECT
 public:
-    SceneTreeModel(const QStringList &headers, const QString &data,
-              QObject *parent = nullptr);
+    SceneTreeModel(const std::string &_rootName = "root", QObject *parent = nullptr);
     ~SceneTreeModel();
-//! [0] //! [1]
 
     QVariant data(const QModelIndex &index, int role) const override;
     QVariant headerData(int section, Qt::Orientation orientation,
@@ -102,9 +107,7 @@ public:
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-//! [1]
 
-//! [2]
     Qt::ItemFlags flags(const QModelIndex &index) const override;
     bool setData(const QModelIndex &index, const QVariant &value,
                  int role = Qt::EditRole) override;
@@ -120,18 +123,14 @@ public:
     bool removeRows(int position, int rows,
                     const QModelIndex &parent = QModelIndex()) override;
 
-    
 
-    std::shared_ptr<SceneObject> getRootObject() const {return m_rootObject;}
-
+    //Scene Addon
     bool insertSceneObject(int _pos, std::shared_ptr<SceneObject> _object, const QModelIndex &_parent = QModelIndex());
     bool removeSceneObject(const QModelIndex &_obj);
+    std::shared_ptr<SceneObject> getRootObject() const {return m_rootItem->sceneObject;}
 
   private:
     TreeItem *getItem(const QModelIndex &index) const;
-    
-    std::shared_ptr<SceneObject> m_rootObject;
-
     TreeItem *m_rootItem;
 
 };

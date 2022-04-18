@@ -13,8 +13,7 @@ std::shared_ptr<SceneObject> SceneManager::m_root;
 ScenePrimitive::ScenePrimitive(const std::string &_name)
 {
     m_name = _name;
-    setData(QString(_name.c_str()));
-    std::cout << m_name << " has been loaded!\n";
+    //std::cout << m_name << " has been loaded!\n";
 }
 
 void ScenePrimitive::draw()
@@ -26,14 +25,14 @@ bool SceneManager::initialize(NGLScene * _scene, NGLSceneTreeView * _list)
 {
     m_scene = _scene;
     m_list = _list;
-    //m_root = m_list->getSceneRoot();
+    m_root = m_list->getSceneRoot();
     return true;
 
 }
 
 bool SceneManager::draw()
 {
-    //m_root->drawInherited();
+    m_root->drawInherited();
     return true;
 }
 
@@ -61,6 +60,13 @@ bool SceneManager::addObject(const std::string &_name, ObjectType _type, const s
     update();
 
     ++new_id;
+    return true;
+}
+
+bool SceneManager::removeSelectedObject()
+{
+    m_list->removeSelected();
+    update();
     return true;
 }
 

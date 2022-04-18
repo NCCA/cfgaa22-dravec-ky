@@ -39,7 +39,7 @@ void NGLScene::mousePressEvent( QMouseEvent* _event )
 {
   // that method is called when the mouse button is pressed in this case we
   // store the value where the maouse was clicked (x,y) and set the Rotate flag to true
-  std::cout << "mouse pressed";
+  //std::cout << "mouse pressed";
   if ( _event->button() == Qt::LeftButton )
   {
     m_win.origX  = _event->x();
@@ -79,7 +79,7 @@ void NGLScene::wheelEvent( QWheelEvent* _event )
   if ( _event->angleDelta().y() > 0 )
   {
     m_scale += ngl::Vec3(ZOOM);
-    std::cout << "\n" << ZOOM << '\n';
+    //std::cout << "\n" << ZOOM << '\n';
   }
   else if ( _event->angleDelta().y() < 0 )
   {

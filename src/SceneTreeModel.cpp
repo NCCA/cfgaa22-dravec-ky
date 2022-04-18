@@ -56,8 +56,80 @@
 */
 
 #include "SceneTreeModel.h"
-
 #include <QStringList>
+#include "SceneObject.h"
+
+//Scene Addon
+
+TreeItem::TreeItem(std::shared_ptr<SceneObject> _object, TreeItem *_parent)
+   : sceneObject(_object),
+    parentItem(_parent)
+{
+    if(_parent)
+        SceneObject::setParentChild(_parent->sceneObject, _object);
+
+    itemData.insert(0,QVariant(QString(_object->getName().c_str())));
+}
+
+bool TreeItem::insertChildObject(int position, std::shared_ptr<SceneObject> _object)
+{
+    if (position < 0 || position > childItems.size())
+        return false;
+
+    TreeItem *item = new TreeItem(_object, this);
+    childItems.insert(position, item);
+
+    return true;
+}
+
+bool TreeItem::removeChildObject(int position)
+{
+    if (position < 0 || position > childItems.size())
+        return false;
+    delete childItems.takeAt(position);
+    return true;
+}
+
+bool TreeItem::setStringData(std::string &_name)
+{
+    itemData.insert(0, QVariant(QString(_name.c_str())));
+    sceneObject->setName(_name);
+    return true;
+}
+
+bool SceneTreeModel::insertSceneObject(int position, std::shared_ptr<SceneObject> object, const QModelIndex &parent)
+{
+    TreeItem *parentItem = getItem(parent);
+    if (!parentItem)
+        return false;
+
+    beginInsertRows(parent, position, position);
+
+    const bool success = parentItem->insertChildObject(position, object);
+    endInsertRows();
+
+    return success;
+}
+
+bool SceneTreeModel::removeSceneObject(const QModelIndex &_index)
+{
+    TreeItem *object = getItem(_index);
+    if (!object)
+        return false;
+
+    auto parent_index = parent(_index);
+    auto parentItem = object->parent();
+    int pos = object->childNumber();
+
+    beginRemoveRows(parent_index, pos, pos);
+    parentItem->sceneObject->removeChild(pos);
+    const bool success = parentItem->removeChildObject(pos);
+    endRemoveRows();
+
+    return success;
+}
+
+//QT
 
 //! [0]
 TreeItem::TreeItem(const QVector<QVariant> &data, TreeItem *parent)
@@ -69,6 +141,7 @@ TreeItem::TreeItem(const QVector<QVariant> &data, TreeItem *parent)
 //! [1]
 TreeItem::~TreeItem()
 {
+    std::cout << sceneObject->getName() << " instances: " << sceneObject.use_count() << std::endl;
     qDeleteAll(childItems);
 }
 //! [1]
@@ -187,19 +260,18 @@ bool TreeItem::setData(int column, const QVariant &value)
         return false;
 
     itemData[column] = value;
+    sceneObject->setName(value.toString().toStdString());
     return true;
 }
 //! [11]
 
 //! [8]
-SceneTreeModel::SceneTreeModel(const QStringList &headers, const QString &data, QObject *parent)
+SceneTreeModel::SceneTreeModel(const std::string &_rootName, QObject *parent)
     : QAbstractItemModel(parent)
 {
-    QVector<QVariant> rootData;
-    for (const QString &header : headers)
-        rootData << header;
-
-    m_rootItem = new TreeItem(rootData);
+    auto rootObj = std::make_shared<SceneObject>();
+    rootObj->setName(_rootName);
+    m_rootItem = new TreeItem(rootObj);
 }
 //! [0]
 

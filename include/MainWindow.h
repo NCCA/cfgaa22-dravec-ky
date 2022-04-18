@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "NGLScene.h"
 #include "NGLSceneTreeView.h"
+#include "NGLObjectMenu.h"
 
 namespace Ui {
     class MainWindow;
@@ -25,6 +26,7 @@ private:
 		/// @brief our openGL widget
 		NGLScene *m_gl;
         NGLSceneTreeView *m_list;
+        NGLObjectMenu *m_menu;
 };
 
 

@@ -1,17 +1,15 @@
-// #ifndef NGLOBJECTMENU_H_
-// #define NGLOBJECTMENU_H_
+#ifndef NGLOBJECTMENU_H_
+#define NGLOBJECTMENU_H_
 
-// #include <QTreeView>
-// #include <QStringListModel>
-// #include <QAbstractItemModel>
-// #include "SceneObject.h"
-// #include "SceneTreeModel.h"
+#include <QGroupBox>
 
-// //base class definition from https://doc.qt.io/archives/4.6/model-view-creating-models.html
-// class NGLObjectMenu: public QGroupBox
-// {
-//     Q_OBJECT
-//   public:
+//base class definition from https://doc.qt.io/archives/4.6/model-view-creating-models.html
+class NGLObjectMenu : QGroupBox
+{
+    Q_OBJECT
+  public:
+    NGLObjectMenu(QWidget *parent = nullptr);
+    ~NGLObjectMenu() {}
 //     NGLObjectMenu(QWidget *parent = nullptr);
 //     ~NGLObjectMenu() {}
 //     std::shared_ptr<SceneObject> getSceneRoot() const;
@@ -32,6 +30,6 @@
     
     
 
-// };
+};
 
-// #endif
+#endif
