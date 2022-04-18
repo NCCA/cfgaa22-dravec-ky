@@ -14,7 +14,6 @@ class NGLSceneTreeView: public QTreeView
   public:
     NGLSceneTreeView(QWidget *parent = nullptr);
     ~NGLSceneTreeView() {}
-    std::shared_ptr<SceneObject> getSceneRoot() const;
 
   public slots:
     void add(std::shared_ptr<SceneObject> obj);

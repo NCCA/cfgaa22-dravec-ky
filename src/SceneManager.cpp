@@ -26,14 +26,14 @@ bool SceneManager::initialize(NGLScene * _scene, NGLSceneTreeView * _list)
 {
     m_scene = _scene;
     m_list = _list;
-    m_root = m_list->getSceneRoot();
+    //m_root = m_list->getSceneRoot();
     return true;
 
 }
 
 bool SceneManager::draw()
 {
-    m_root->drawInherited();
+    //m_root->drawInherited();
     return true;
 }
 

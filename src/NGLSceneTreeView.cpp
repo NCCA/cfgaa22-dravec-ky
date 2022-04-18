@@ -22,6 +22,7 @@ NGLSceneTreeView::NGLSceneTreeView(QWidget *_parent)
 
     QFile file("default.txt");
     file.open(QIODevice::ReadOnly);
+    headers = QStringList(QString("root"));
     m_treeModel = new SceneTreeModel(headers, file.readAll());
     file.close();
     //std::cout<<"Setting the model...\n";
@@ -40,19 +41,15 @@ void NGLSceneTreeView::add(std::shared_ptr<SceneObject> obj)
 
     //https://stackoverflow.com/questions/37412712/how-to-update-a-qstringlistmodel
     //std::cout<<"Finished checking row count...\n";
-    if(m_treeModel->insertSceneObject(numRows, obj))
+    if(m_treeModel->insertRows(numRows, 1))
     {
-        //auto index = m_treeModel->index(numRows,0);
+        auto index = m_treeModel->index(numRows,0);
         //std::cout << "Got index!\n";
-        //m_treeModel->setData(index, QString(obj->getName().c_str()) );
+        m_treeModel->setData(index, QString(obj->getName().c_str()) );
         update();
     }
 }
 
-std::shared_ptr<SceneObject> NGLSceneTreeView::getSceneRoot() const
-{
-    return m_treeModel->getRootObject();
-}
 
 void NGLSceneTreeView::keyPressEvent(QKeyEvent *event)
 {
@@ -63,7 +60,6 @@ void NGLSceneTreeView::keyPressEvent(QKeyEvent *event)
         if (indexes.size() > 0)
         {
             QModelIndex selectedIndex = indexes.at(0);
-            m_treeModel->removeSceneObject(selectedIndex);
         }
     }
     SceneManager::update();

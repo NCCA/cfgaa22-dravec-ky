@@ -51,7 +51,6 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
             ${PROJECT_SOURCE_DIR}/src/NGLSceneTreeView.cpp 
             ${PROJECT_SOURCE_DIR}/include/SceneTreeModel.h  
             ${PROJECT_SOURCE_DIR}/src/SceneTreeModel.cpp 
-            ${PROJECT_SOURCE_DIR}/src/SceneTreeModelQt.cpp 
             ${PROJECT_SOURCE_DIR}/include/NGLObjectMenu.h  
             ${PROJECT_SOURCE_DIR}/src/NGLObjectMenu.cpp 
 )
