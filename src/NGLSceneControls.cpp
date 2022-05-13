@@ -2,6 +2,9 @@
 #include <QMouseEvent>
 #include <iostream>
 #include <ngl/Transformation.h>
+#include <ngl/Vec3.h>
+#include <ngl/Util.h>
+#include "Utils.h"
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -16,6 +19,21 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
     int diffy = _event->y() - m_win.origY;
     m_win.spinXFace += static_cast<int>( 0.5f * diffy );
     m_win.spinYFace += static_cast<int>( 0.5f * diffx );
+
+    ngl::Mat4 temp_rot;
+
+    temp_rot.identity();
+    temp_rot.rotateX(diffy);
+    temp_rot.rotateZ(diffx);
+    
+    std::cout << "\n--------------";
+    Utils::printMatrix(m_v_rot);
+    Utils::printMatrix(temp_rot);
+
+    m_v_rot *= temp_rot;
+
+    Utils::printMatrix(m_v_rot);
+
     m_win.origX = _event->x();
     m_win.origY = _event->y();
     update();
@@ -27,8 +45,8 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
     int diffY      = static_cast<int>( _event->y() - m_win.origYPos );
     m_win.origXPos = _event->x();
     m_win.origYPos = _event->y();
-    m_modelPos.m_x += INCREMENT * diffX;
-    m_modelPos.m_y -= INCREMENT * diffY;
+    // m_modelPos.m_x += INCREMENT * diffX;
+    // m_modelPos.m_y -= INCREMENT * diffY;
     update();
   }
 }
@@ -71,19 +89,30 @@ void NGLScene::mouseReleaseEvent( QMouseEvent* _event )
   }
 }
 
+void NGLScene::keyPressEvent(QKeyEvent *_event)
+{
+  std::cout << "pressed";
+  if(_event->key() == Qt::Key_F)
+  {
+    m_v_transform.reset();
+  }
+  update();
+}
+
 //----------------------------------------------------------------------------------------------------------------------
 void NGLScene::wheelEvent( QWheelEvent* _event )
 {
-
+  
   // check the diff of the wheel position (0 means no change)
   if ( _event->angleDelta().y() > 0 )
   {
-    m_scale += ngl::Vec3(ZOOM);
+
     //std::cout << "\n" << ZOOM << '\n';
   }
   else if ( _event->angleDelta().y() < 0 )
   {
-    m_scale += ngl::Vec3(-ZOOM);
+
   }
   update();
 }
+

@@ -109,9 +109,16 @@ protected:
   ngl::Vec3 m_modelPos;
   /// @brief our camera
   ngl::Mat4 m_view;
+
+	//Transformation matrix for moving the camera + variables for temporarily storing increments during event inputs
+  ngl::Transformation m_v_transform;
+  ngl::Mat4 m_v_rot;
+  ngl::Mat4 m_v_scale;
+  ngl::Mat4 m_v_trans;
+
   ngl::Mat4 m_project;
 	/// @brief our transform for objects
-	ngl::Transformation m_transform;
+  ngl::Transformation m_transform;
 private :
   /// @brief this method is called every time a mouse is moved
   /// @param _event the Qt Event structure
@@ -128,6 +135,7 @@ private :
   /// @param _event the Qt Event structure
   void mouseReleaseEvent (QMouseEvent *_event ) override;
   void wheelEvent( QWheelEvent* _event ) override;
+  void keyPressEvent(QKeyEvent * _event) override;
 
   void loadMatricesToShader( );
 

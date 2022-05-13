@@ -1,11 +1,13 @@
 #include "NGLScene.h"
 #include "SceneManager.h"
+#include "Utils.h"
 #include <iostream>
 #include <ngl/Vec3.h>
 #include <ngl/NGLInit.h>
 #include <ngl/VAOPrimitives.h>
 #include <ngl/ShaderLib.h>
 #include <ngl/Obj.h>
+#include <ngl/Util.h>
 #include <QColorDialog>
 #include <QFileDialog>
 
@@ -13,6 +15,7 @@
 NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 {
   setFocus();
+  setFocusPolicy(Qt::StrongFocus);
   this->resize(_parent->size());
 	m_wireframe=false;
 	m_rotation=0.0;
@@ -32,7 +35,7 @@ void NGLScene::initializeGL()
   ngl::Vec3 eye(0.0f,2.0f,2.0f);
   ngl::Vec3 look(0,0,0);
   ngl::Vec3 up(0,1,0);
-  m_view=ngl::lookAt(eye,look,up);
+  m_view = ngl::lookAt(eye,look,up);
 
   m_project=ngl::perspective(45,float(1024/720),0.1f,300.0f);
 
@@ -60,14 +63,7 @@ void NGLScene::initializeGL()
   //ngl::ShaderLib::setUniform( "camPos", eye );
 
   // now a light
-  // setup the default shader material and light porerties
-  // these are "uniform" so will retain their values
-  // ngl::ShaderLib::setUniform("lightPosition",0.0, 2.0f, 2.0f );
-  // ngl::ShaderLib::setUniform("lightColor",400.0f,400.0f,400.0f);
-  // ngl::ShaderLib::setUniform("exposure",2.2f);
-  // ngl::ShaderLib::setUniform("albedo",0.950f, 0.71f, 0.29f);
-  // ngl::ShaderLib::setUniform("metallic",1.02f);
-  // ngl::ShaderLib::setUniform("roughness",0.38f);
+  // setup the default shader mate*m_v_transform.getMatrix()oughness",0.38f);
   // ngl::ShaderLib::setUniform("ao",0.2f);
 
   //ngl::VAOPrimitives::createSphere("sphere",1.0,40);
@@ -96,8 +92,8 @@ void NGLScene::loadMatricesToShader()
    };
    transform t;
     t.M=m_transform.getMatrix();
-
-    t.MVP=m_project*m_view*t.M;
+    
+    t.MVP=m_project*m_view*m_v_rot*t.M;
     t.normalMatrix=t.M;
     t.normalMatrix.inverse().transpose();
     ngl::ShaderLib::setUniformBuffer("TransformUBO",sizeof(transform),&t.MVP.m_00);
@@ -115,11 +111,7 @@ void NGLScene::paintGL()
   {
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
   }
-
-	m_transform.setPosition(m_position);
-	m_transform.setScale(m_scale);
-	m_transform.setRotation(m_rotation);
-
+  
   loadMatricesToShader();
 
   SceneManager::draw();

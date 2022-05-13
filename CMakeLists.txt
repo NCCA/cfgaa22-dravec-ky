@@ -38,7 +38,7 @@ add_executable(${TargetName})
 target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
 			${PROJECT_SOURCE_DIR}/src/NGLScene.cpp  
 			${PROJECT_SOURCE_DIR}/src/MainWindow.cpp  
-			${PROJECT_SOURCE_DIR}/src/NGLSceneMouseControls.cpp
+			${PROJECT_SOURCE_DIR}/src/NGLSceneControls.cpp
 			${PROJECT_SOURCE_DIR}/include/MainWindow.h  
 			${PROJECT_SOURCE_DIR}/include/NGLScene.h  
             ${PROJECT_SOURCE_DIR}/include/SceneMesh.h  
@@ -53,6 +53,8 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
             ${PROJECT_SOURCE_DIR}/src/SceneTreeModel.cpp 
             ${PROJECT_SOURCE_DIR}/include/NGLObjectMenu.h  
             ${PROJECT_SOURCE_DIR}/src/NGLObjectMenu.cpp 
+            ${PROJECT_SOURCE_DIR}/include/Utils.h 
+            ${PROJECT_SOURCE_DIR}/src/Utils.cpp 
 )
 
 if ( Qt6_FOUND )
