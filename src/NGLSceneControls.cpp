@@ -20,19 +20,18 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
     m_win.spinXFace += static_cast<int>( 0.5f * diffy );
     m_win.spinYFace += static_cast<int>( 0.5f * diffx );
 
+    
     ngl::Mat4 temp_rot;
 
     temp_rot.identity();
+    temp_rot.rotateY(diffx);
+    m_v_rot = m_v_rot * temp_rot;
+
+    temp_rot.identity();
     temp_rot.rotateX(diffy);
-    temp_rot.rotateZ(diffx);
-    
-    std::cout << "\n--------------";
-    Utils::printMatrix(m_v_rot);
-    Utils::printMatrix(temp_rot);
+    m_v_rot = temp_rot * m_v_rot;
 
-    m_v_rot *= temp_rot;
 
-    Utils::printMatrix(m_v_rot);
 
     m_win.origX = _event->x();
     m_win.origY = _event->y();
@@ -45,6 +44,12 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
     int diffY      = static_cast<int>( _event->y() - m_win.origYPos );
     m_win.origXPos = _event->x();
     m_win.origYPos = _event->y();
+
+    ngl::Mat4 temp_trans;
+    temp_trans.identity();
+    temp_trans.m_30 += diffX/100.0f;
+    temp_trans.m_31 += diffY/100.0f;
+    m_v_rot = m_v_rot * temp_trans;
     // m_modelPos.m_x += INCREMENT * diffX;
     // m_modelPos.m_y -= INCREMENT * diffY;
     update();
