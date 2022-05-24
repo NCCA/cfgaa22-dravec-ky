@@ -18,12 +18,14 @@ NGLSceneTreeView::NGLSceneTreeView(QWidget *_parent)
     //list << "a" << "b";
 
     headers = QStringList(QString("root"));
+    
     m_treeModel = new SceneTreeModel("Object Name");
-    //std::cout<<"Setting the model...\n";
 
     this->setModel(m_treeModel);
     this->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
-
+    
+    
+    isLoaded = true;
     // for (int column = 0; column < m_treeModel->columnCount(); ++column)
     //     this->resizeColumnToContents(column);
 }
@@ -53,12 +55,17 @@ void NGLSceneTreeView::keyPressEvent(QKeyEvent *event)
 void NGLSceneTreeView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
     this->update();
+    if(isLoaded)
+    {
+        selectionChangedSignal();
+        std::cout << "selection chnaged";
+        SceneManager::updateSelection();
+    }
 }
 
 
 void NGLSceneTreeView::mousePressEvent(QMouseEvent *event)
 {
-
     //https://stackoverflow.com/questions/2761284/is-it-possible-to-deselect-in-a-qtreeview-by-clicking-off-an-item
     //Deselects items when clicked away
     
@@ -83,11 +90,25 @@ std::shared_ptr<SceneObject> NGLSceneTreeView::getSceneRoot()
 
 bool NGLSceneTreeView::removeSelected()
 {
-    QModelIndexList indexes = this->selectionModel()->selectedIndexes();
+    auto model = this->selectionModel();
+    auto indexes = model->selectedIndexes();
     if (indexes.size() > 0)
     {
         QModelIndex selectedIndex = indexes.at(0);
-        m_treeModel->removeSceneObject(selectedIndex);
+        bool success = m_treeModel->removeSceneObject(selectedIndex);
+        return success;
     }
+    return false;
 }
 
+std::shared_ptr<SceneObject> NGLSceneTreeView::getSelectedObject()
+{
+    auto model = this->selectionModel();
+    auto indexes = model->selectedIndexes();
+    if (indexes.size() > 0)
+    {
+        QModelIndex selectedIndex = indexes.at(0);
+        return m_treeModel->getSceneObject(selectedIndex);
+    }
+    return nullptr;
+}

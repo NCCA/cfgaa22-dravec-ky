@@ -48,8 +48,8 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
     ngl::Mat4 temp_trans;
     temp_trans.identity();
     temp_trans.m_30 += diffX/100.0f;
-    temp_trans.m_31 += diffY/100.0f;
-    m_v_rot = m_v_rot * temp_trans;
+    temp_trans.m_31 -= diffY/100.0f;
+    m_v_trans = temp_trans * m_v_trans;
     // m_modelPos.m_x += INCREMENT * diffX;
     // m_modelPos.m_y -= INCREMENT * diffY;
     update();
@@ -99,7 +99,9 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
   std::cout << "pressed";
   if(_event->key() == Qt::Key_F)
   {
-    m_v_transform.reset();
+    m_v_rot.identity();
+    m_v_trans.identity();
+    m_v_scale.identity();
   }
   update();
 }
@@ -107,16 +109,18 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
 //----------------------------------------------------------------------------------------------------------------------
 void NGLScene::wheelEvent( QWheelEvent* _event )
 {
-  
+  auto ZOOM = _event->angleDelta().y()*0.001;
   // check the diff of the wheel position (0 means no change)
-  if ( _event->angleDelta().y() > 0 )
+  if ( ZOOM != 0)
   {
+    ngl::Mat4 temp_scale;
+    temp_scale.identity();
 
-    //std::cout << "\n" << ZOOM << '\n';
-  }
-  else if ( _event->angleDelta().y() < 0 )
-  {
+    temp_scale *= (1+ZOOM);
+    m_v_scale *= temp_scale;
+    m_v_scale.m_33 = 1;
 
+    //Utils::printMatrix(m_v_scale);
   }
   update();
 }

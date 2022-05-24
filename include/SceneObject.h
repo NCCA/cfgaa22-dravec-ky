@@ -33,6 +33,7 @@ class SceneObject
   protected:
     void setParent(std::shared_ptr<SceneObject> _parent);
     void addChild(std::shared_ptr<SceneObject> _child);
+    //void loadShaderInfo();
 
     std::vector<std::shared_ptr<SceneObject>> m_children;
     std::shared_ptr<SceneObject> m_parent;

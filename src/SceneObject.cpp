@@ -4,7 +4,7 @@
 SceneObject::SceneObject()
 {
     std::cout << "Scene Object Created!\n";
-
+    transform.setPosition(ngl::Vec3(0.0f));
 }
 
 void SceneObject::setParentChild(std::shared_ptr<SceneObject> _parent, std::shared_ptr<SceneObject> _child)

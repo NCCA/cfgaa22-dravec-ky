@@ -34,6 +34,7 @@ public :
 
 		/// @brief dtor
   ~NGLScene() override;
+  
  public slots :
 	/// @brief a slot to toggle wireframe mode
 	/// @param[in] _mode the mode passed from the toggle

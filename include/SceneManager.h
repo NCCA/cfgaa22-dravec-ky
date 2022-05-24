@@ -13,6 +13,8 @@
 #include "NGLSceneTreeView.h"
 #include "SceneObject.h"
 #include "SceneMesh.h"
+#include "NGLObjectMenu.h"
+#include "MainWindow.h"
 
 //Temporary wrapper for calling VAOPrimitives draw functions using the Scene Manager for testing
 class ScenePrimitive : public SceneObject
@@ -26,23 +28,27 @@ class ScenePrimitive : public SceneObject
 class SceneManager
 {
   public:
-    static bool initialize(NGLScene * _scene, NGLSceneTreeView * _list);
+    static bool initialize(NGLScene * _scene, NGLSceneTreeView * _list, NGLObjectMenu * _menu);
 
     enum class ObjectType {MESH, LIGHT, PRIMITIVE};
-    static bool addObject(const std::string &_name = "", ObjectType _type = ObjectType::MESH, const std::string &_path = NULL);
+    static std::shared_ptr<SceneObject> addObject(const std::string &_name = "", ObjectType _type = ObjectType::MESH, const std::string &_path = NULL);
     static bool removeSelectedObject();
     static bool draw();
     static void loadObject();
     static void update();
+    static void updateSelection();
+    static std::shared_ptr<SceneObject> m_selected;
 
   private:
-    static std::vector<std::shared_ptr<SceneObject>> m_objects;
-    static std::shared_ptr<SceneObject> parent;
-    static const std::array<std::string, 3> m_primitives;
     static NGLScene * m_scene;
     static NGLSceneTreeView * m_list;
+    static NGLObjectMenu * m_menu;
+
+
     static int new_id;
     static std::shared_ptr<SceneObject> m_root;
+
+    
 };
 
 #endif

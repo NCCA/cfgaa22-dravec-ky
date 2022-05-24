@@ -83,7 +83,6 @@ void NGLScene::resizeGL( int _w, int _h )
 
 void NGLScene::loadMatricesToShader()
 {
-   ngl::ShaderLib::use("PBR");
    struct transform
    {
      ngl::Mat4 MVP;
@@ -92,9 +91,8 @@ void NGLScene::loadMatricesToShader()
    };
    transform t;
     t.M=m_transform.getMatrix();
-    
-    t.MVP=m_project*m_view*m_v_rot*t.M;
-    t.normalMatrix=t.M;
+    t.MVP=m_project*m_v_trans*m_view*m_v_rot*m_v_scale*t.M;
+    //Utils::printMatrix(t.MVP);
     t.normalMatrix.inverse().transpose();
     ngl::ShaderLib::setUniformBuffer("TransformUBO",sizeof(transform),&t.MVP.m_00);
 }
@@ -111,7 +109,7 @@ void NGLScene::paintGL()
   {
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
   }
-  
+  ngl::ShaderLib::use("PBR");
   loadMatricesToShader();
 
   SceneManager::draw();
