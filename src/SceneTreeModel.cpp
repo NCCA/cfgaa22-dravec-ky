@@ -129,7 +129,7 @@ bool SceneTreeModel::removeSceneObject(const QModelIndex &_index)
     std::cout << "child removed";
     endRemoveRows();
 
-    return success;
+    return true;
 }
 
 std::shared_ptr<SceneObject> SceneTreeModel::getSceneObject(const QModelIndex &_index)
@@ -137,7 +137,6 @@ std::shared_ptr<SceneObject> SceneTreeModel::getSceneObject(const QModelIndex &_
     TreeItem *object = getItem(_index);
     if (!object)
         return nullptr;
-
     return object->sceneObject;
 }
 

@@ -2,20 +2,36 @@
 #define MESH_H_
 
 #include <ngl/AbstractMesh.h>
+#include <ngl/AbstractVAO.h>
 #include "SceneObject.h"
+#include "ScenePrimitive.h"
+#include <ngl/Obj.h>
 
-//based on NGL's AbstractMesh and Obj classes, added support for triangulating faces while loading
-class SceneMesh : public ngl::AbstractMesh, public SceneObject
+class MeshInfo: public ngl::Obj
 {
   public:
-    SceneMesh() noexcept: ngl::AbstractMesh(){};
-    bool load(const std::string &_fname,CalcBB _calcBB=CalcBB::True) noexcept;
-    void draw() override {}
-     ~SceneMesh() {}
+    MeshInfo( const std::string& _fname, CalcBB _calcBB=CalcBB::True)  noexcept: ngl::Obj(_fname, _calcBB){};
+    ngl::AbstractVAO * getRawVAO() {return m_vaoMesh.get();};
+    ~MeshInfo(){};
+};
+
+//based on NGL's AbstractMesh and Obj classes, added support for triangulating faces while loading
+class SceneMesh : public SceneObject
+{
+  public:
+    SceneMesh(const std::string &_name, const std::string &_fname);
+    SceneMesh(const std::string &_primname);
+    //bool load(const std::string &_fname,CalcBB _calcBB=CalcBB::True) noexcept;
+    void draw() override;
+     ~SceneMesh();
     
-  private:
+  protected:
+    shadingInfo m_shading_info;
+    std::unique_ptr<ngl::AbstractVAO> m_vao;
+    bool VAO_loaded = false;
 
-
+    bool isObj;
+    std::unique_ptr<MeshInfo> m_obj;
 };
 
 #endif

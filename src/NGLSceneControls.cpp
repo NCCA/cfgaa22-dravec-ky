@@ -5,6 +5,7 @@
 #include <ngl/Vec3.h>
 #include <ngl/Util.h>
 #include "Utils.h"
+#include "SceneManager.h"
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -96,12 +97,14 @@ void NGLScene::mouseReleaseEvent( QMouseEvent* _event )
 
 void NGLScene::keyPressEvent(QKeyEvent *_event)
 {
-  std::cout << "pressed";
+  //std::cout << "pressed";
   if(_event->key() == Qt::Key_F)
   {
     m_v_rot.identity();
     m_v_trans.identity();
     m_v_scale.identity();
+
+    auto new_pos = SceneManager::getSelectedObject()->transform.getPosition();
   }
   update();
 }

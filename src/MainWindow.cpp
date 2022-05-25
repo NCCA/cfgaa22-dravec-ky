@@ -32,33 +32,19 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), m_ui(new Ui::MainW
   // connect(m_ui->m_translateX,SIGNAL(valueChanged(double)),this,SLOT(setTranslateX(double)));
   // connect(m_ui->m_translateY,SIGNAL(valueChanged(double)),this,SLOT(setTranslateY(double)));
   // connect(m_ui->m_translateZ,SIGNAL(valueChanged(double)),this,SLOT(setTranslateZ(double)));
+  
   connect(m_list,SIGNAL(selectionChangedSignal()),this,SLOT(updateMenu()));
 
-  // /// set the scale signals
-  // connect(m_ui->m_scaleX,SIGNAL(valueChanged(double)),m_gl,SLOT(setXScale(double)));
-  // connect(m_ui->m_scaleY,SIGNAL(valueChanged(double)),m_gl,SLOT(setYScale(double)));
-  // connect(m_ui->m_scaleZ,SIGNAL(valueChanged(double)),m_gl,SLOT(setZScale(double)));
-  // /// set the position signals
-  // connect(m_ui->m_positionX,SIGNAL(valueChanged(double)),m_gl,SLOT(setXPosition(double)));
-  // connect(m_ui->m_positionY,SIGNAL(valueChanged(double)),m_gl,SLOT(setYPosition(double)));
-  // connect(m_ui->m_positionZ,SIGNAL(valueChanged(double)),m_gl,SLOT(setZPosition(double)));
-  /// set the combo box index change signal
-  // connect(m_ui->m_objectSelection,SIGNAL(currentIndexChanged(int)),m_gl,SLOT(this->onClconnect(m_ui->actionLoad, &QAction::triggered, this, [this]{ loadObjectFromFile(); });
-  // set load button
-
   connect(m_ui->actionLoad, &QAction::triggered, this, [this]{ loadObjectFromFile(); });
-  connect(m_ui->actionSphere, &QAction::triggered, this, [this]{ loadObject("cube"); });
-  connect(m_ui->actionTeapot, &QAction::triggered, this, [this]{ loadObject("teapot"); });
-  connect(m_ui->actionCube, &QAction::triggered, this, [this]{ loadObject("cube"); });
-  
-  std::shared_ptr<SceneObject> obj;
 
-  for(int i=0;i<10;i++)
-  {
-    obj = SceneManager::addObject("", SceneManager::ObjectType::PRIMITIVE, "teapot");
-    obj->transform.setPosition(ngl::Vec3(i));
-    SceneManager::update();
-  }
+  connect(m_ui->actionSphere, &QAction::triggered, this, [this]{ loadObject("sphere"); });
+  connect(m_ui->actionTeapot, &QAction::triggered, this, [this]{ loadObject("teapot"); });
+  connect(m_ui->actionPlane, &QAction::triggered, this, [this]{ loadObject("cube"); });
+  connect(m_ui->actionCylinder, &QAction::triggered, this, [this]{ loadObject("cylinder"); });
+  connect(m_ui->actionTorus, &QAction::triggered, this, [this]{ loadObject("torus"); });
+  
+
+
   
 }
 
@@ -96,8 +82,12 @@ void MainWindow::loadObjectFromFile()
     std::cout << "File empty.";
     return;
   }
-  auto pathList = path.split("/");
+  auto path_list = path.split("/");
+  auto name = path_list.last().split(".").first();
+
+  SceneManager::addObject(name.toStdString(), SceneManager::ObjectType::MESH, path.toStdString());
 }
+
 void MainWindow::loadObject(const std::string &_value)
 {
   SceneManager::addObject("", SceneManager::ObjectType::PRIMITIVE, _value);

@@ -19,39 +19,45 @@ NGLObjectMenu::NGLObjectMenu(QWidget *_parent)
     label_t->setText("Translate");
     vbox->addWidget(label_t,0,0);
 
-    vbox->addWidget(m_translateX,1,0);
-    vbox->addWidget(m_translateY,1,1);
-    vbox->addWidget(m_translateZ,1,2);
+    int i=0;
+    for(QDoubleSpinBox * box : {m_translateX,m_translateY,m_translateZ} )
+    {
+        vbox->addWidget(box,1,i);
+        box->setRange(-1000.0,1000.0);
+        box->setSingleStep(0.1);
+        connect(box, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double val){ m_pos[i] = val; setTransforms();});
+        i++;
+    }
 
     QLabel *label_r = new QLabel();
     label_r->setText("Rotate");
     vbox->addWidget(label_r,2,0);
 
-    vbox->addWidget(m_rotateX,3,0);
-    vbox->addWidget(m_rotateY,3,1);
-    vbox->addWidget(m_rotateZ,3,2);
+    i=0;
+    for(QSpinBox * box : {m_rotateX,m_rotateY,m_rotateZ} )
+    {
+        vbox->addWidget(box,3,i);
+        box->setRange(-1000,1000);
+        box->setSingleStep(10);
+        connect(box, QOverload<int>::of(&QSpinBox::valueChanged), [=](double val){ m_rot[i] = val; setTransforms();});
+        i++;
+    }
 
     QLabel *label_s = new QLabel();
     label_s->setText("Scale");
     vbox->addWidget(label_s,4,0);
 
-    vbox->addWidget(m_scaleX,5,0);
-    vbox->addWidget(m_scaleY,5,1);
-    vbox->addWidget(m_scaleZ,5,2);
+    i=0;
+    for(QDoubleSpinBox * box : {m_scaleX,m_scaleY,m_scaleZ} )
+    {
+        vbox->addWidget(box,5,i);
+        box->setRange(-1000.0,1000.0);
+        box->setSingleStep(0.1);
+        connect(this->m_scaleX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double val){ m_scale[i] = val; setTransforms();});
+        i++;
+    }
 
     this->setLayout(vbox);
-
-    connect(this->m_translateX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double i){ m_pos[0] = i; setTransforms();});
-    connect(this->m_translateY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double i){ m_pos[1] = i; setTransforms();});
-    connect(this->m_translateZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double i){ m_pos[2] = i; setTransforms();});
-
-    connect(this->m_rotateX, QOverload<int>::of(&QSpinBox::valueChanged), [=](double i){ m_rot[0] = i; setTransforms();});
-    connect(this->m_rotateY, QOverload<int>::of(&QSpinBox::valueChanged), [=](double i){ m_rot[1] = i; setTransforms();});
-    connect(this->m_rotateZ, QOverload<int>::of(&QSpinBox::valueChanged), [=](double i){ m_rot[2] = i; setTransforms();});
-
-    connect(this->m_scaleX, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double i){ m_scale[0] = i; setTransforms();});
-    connect(this->m_scaleY, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double i){ m_scale[1] = i; setTransforms();});
-    connect(this->m_scaleZ, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double i){ m_scale[2] = i; setTransforms();});
 }
 
 void NGLObjectMenu::setTransforms()
@@ -87,6 +93,7 @@ void NGLObjectMenu::updateObject(std::shared_ptr<SceneObject> _obj)
     m_scaleX->setValue(m_scale[0]);
     m_scaleY->setValue(m_scale[1]);
     m_scaleZ->setValue(m_scale[2]);
+
     SceneManager::update();
     update = true;
 

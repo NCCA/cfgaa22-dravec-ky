@@ -28,9 +28,22 @@ void NGLScene::initializeGL()
 {
 
   ngl::NGLInit::initialize();
+  //prepare some basic shapes
+  ngl::VAOPrimitives::createTrianglePlane("plane",1,1,0,1,ngl::Vec3(0,1,0));
+  ngl::VAOPrimitives::createTorus("torus",0.3,1,8,16);
+  ngl::VAOPrimitives::createCylinder("cylinder",0.8,2,16,3);
+
+  //std::shared_ptr<SceneObject> obj;
+  // for(int i=0;i<10;i++)
+  // {
+  //   obj = SceneManager::addObject("", SceneManager::ObjectType::PRIMITIVE, "teapot");
+  //   obj->transform.setPosition(ngl::Vec3(i));
+  //   SceneManager::update();
+  // }
 
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);			   // Grey Background
   glEnable(GL_DEPTH_TEST);
+  glEnable(GL_POLYGON_OFFSET_LINE);
 
   ngl::Vec3 eye(0.0f,2.0f,2.0f);
   ngl::Vec3 look(0,0,0);
@@ -91,6 +104,7 @@ void NGLScene::loadMatricesToShader()
    };
    transform t;
     t.M=m_transform.getMatrix();
+    //Utils::printMatrix(t.M);
     t.MVP=m_project*m_v_trans*m_view*m_v_rot*m_v_scale*t.M;
     //Utils::printMatrix(t.MVP);
     t.normalMatrix.inverse().transpose();
@@ -101,6 +115,7 @@ void NGLScene::paintGL()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glViewport(0,0,m_win.width,m_win.height);
+  
   if(m_wireframe == true)
   {
     glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);

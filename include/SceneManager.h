@@ -16,14 +16,6 @@
 #include "NGLObjectMenu.h"
 #include "MainWindow.h"
 
-//Temporary wrapper for calling VAOPrimitives draw functions using the Scene Manager for testing
-class ScenePrimitive : public SceneObject
-{
-  public:
-    ScenePrimitive(const std::string &_name);
-    void draw () override;
-    ~ScenePrimitive() {};
-};
 
 class SceneManager
 {
@@ -37,6 +29,7 @@ class SceneManager
     static void loadObject();
     static void update();
     static void updateSelection();
+    static std::shared_ptr<SceneObject> getSelectedObject() {return m_selected;};
     static std::shared_ptr<SceneObject> m_selected;
 
   private:

@@ -6,6 +6,10 @@ in vec3 vertCol;
 in vec2 UV;
 in vec3 worldPos;
 
+uniform vec3 col;
+uniform float diff;
+uniform float spec;
+
 uniform sampler2D outTex;
 
 void main()

@@ -29,6 +29,8 @@ class SceneObject
     int indexOf(std::shared_ptr<SceneObject> _child) const;
 
     ngl::Transformation transform;
+
+    bool isSelected = false;
     
   protected:
     void setParent(std::shared_ptr<SceneObject> _parent);
@@ -40,6 +42,7 @@ class SceneObject
 
     std::string m_name;
     int m_index;
+
 };
 
 #endif
