@@ -34,12 +34,14 @@ class SceneMesh : public SceneObject
      ~SceneMesh();
     
   protected:
+    void load(const std::string &path);
     Material m_shading_info;
     std::unique_ptr<ngl::AbstractVAO> m_vao;
     bool VAO_loaded = false;
 
     bool isObj;
-    std::unique_ptr<MeshInfo> m_obj;
+    std::unique_ptr<ngl::Obj> m_obj;
+
 };
 
 #endif

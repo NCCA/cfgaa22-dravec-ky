@@ -68,6 +68,12 @@ void NGLObjectMenu::setTransforms()
         m_curObject->transform.setRotation(m_rot);
         m_curObject->transform.setScale(m_scale);
         SceneManager::update();
+        if(m_curObject->getType()==SceneObject::ObjectType::LIGHT)
+        {
+            std::cout << "light update\n";
+            SceneManager::updateLightInfo();
+        }
+            
         //std::cout<<"\nupdated transforms.";
     }
 }

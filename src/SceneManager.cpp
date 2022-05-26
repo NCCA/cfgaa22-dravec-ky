@@ -15,9 +15,9 @@ NGLSceneTreeView * SceneManager::m_list;
 NGLObjectMenu * SceneManager::m_menu;
 
 int SceneManager::new_id;
+bool SceneManager::canDraw = true;
 std::shared_ptr<SceneObject> SceneManager::m_root;
 std::shared_ptr<SceneObject> SceneManager::m_selected;
-std::unordered_map<int,std::shared_ptr<SceneLight>> SceneManager::m_lights;
 
 bool SceneManager::initialize(NGLScene * _scene, NGLSceneTreeView * _list, NGLObjectMenu * _menu)
 {
@@ -31,20 +31,23 @@ bool SceneManager::initialize(NGLScene * _scene, NGLSceneTreeView * _list, NGLOb
 
 bool SceneManager::draw()
 {
-    m_root->drawInherited();
+    if(canDraw) m_root->drawInherited();
     return true;
 }
 
 std::shared_ptr<SceneObject> SceneManager::addObject(const std::string &_name, SceneObject::ObjectType _type, const std::string &_path)
 {   
-    
+    static int light_unique_id = 0;
     std::shared_ptr<SceneObject> obj;
     switch(_type)
     {
         case SceneObject::ObjectType::MESH:
         {
+            std::cout << "\ntrying to create mesh";
             auto mesh = std::make_shared<SceneMesh>(_name,_path);
             obj = std::move(mesh);
+            
+            update();
             break;
         }
         case SceneObject::ObjectType::PRIMITIVE:
@@ -52,36 +55,40 @@ std::shared_ptr<SceneObject> SceneManager::addObject(const std::string &_name, S
             std::cout << "\nDetected primitive " << _path;
             auto prim = std::make_shared<SceneMesh>(_path);
             obj = std::move(prim);
+            
             break;
         }
         case SceneObject::ObjectType::LIGHT:
         {
-            obj = addLight();
+            auto light = std::make_shared<SceneLight>(light_unique_id);
+            m_scene->m_lights[light_unique_id] = light;
+            
+            m_scene->updateShaderLights();
+
+            std::cout << "\nLights: " << m_scene->m_lights.size();
+            obj = std::move(light);
+            obj->setName(_name);
+            light_unique_id++;
             break;
         }
     }
 
-    m_list->add(obj);   
-    update();
+    m_list->add(obj);  
 
-    ++new_id;
+    update();
     return obj;
     
 }
 
 std::shared_ptr<SceneObject> SceneManager::addLight(ngl::Vec3 _pos, int _intensity, ngl::Vec3 _col,const std::string &_name)
 {
-    static int light_unique_id = 0;
+    auto obj = addObject("light",SceneObject::ObjectType::LIGHT);
+    
+    auto light = std::static_pointer_cast<SceneLight>(obj);
 
-    std::cout<< "\nCreated light with id " << light_unique_id;
-
-    auto light = std::make_shared<SceneLight>(light_unique_id);
     light->transform.setPosition(_pos);
     light->setIntensity(_intensity);
     light->setColour(_col);
-
-    m_lights[light_unique_id] = std::move(light);
-    light_unique_id++;
 
     return light;
 }
@@ -89,8 +96,17 @@ std::shared_ptr<SceneObject> SceneManager::addLight(ngl::Vec3 _pos, int _intensi
 
 bool SceneManager::removeSelectedObject()
 {
-    m_list->removeSelected();
-    update();
+    if(m_selected)
+    {
+        if(m_selected->getType()==SceneObject::ObjectType::LIGHT)
+        {
+            m_scene->m_lights.erase(std::static_pointer_cast<SceneLight>(m_selected)->getID());
+            m_scene->updateShaderLights();
+            std::cout << "\nLights: " << m_scene->m_lights.size();
+        }
+        m_list->removeSelected();
+        update();
+    }
     return true;
 }
 
@@ -99,6 +115,11 @@ void SceneManager::update()
     m_scene->update();
     m_list->update();
     
+}
+
+void SceneManager::loadCameraMatrixToCurrentShader()
+{
+    m_scene->loadMatricesToShader();
 }
 
 void SceneManager::updateSelection()

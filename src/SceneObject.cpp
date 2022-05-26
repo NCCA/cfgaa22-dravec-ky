@@ -61,11 +61,15 @@ SceneObject::~SceneObject()
 
 void SceneObject::drawInherited()
 {
-    //std::cout << "\nObject " << m_name << " is drawing its children;\n";
-    for(auto child : m_children)
+    if(canDraw)
     {
-        //std::cout << child->m_name << std::endl;
-        child->draw();
-        child->drawInherited();
+        //std::cout << "\nObject " << m_name << " is drawing its children;\n";
+        for(auto child : m_children)
+        {
+            //std::cout << child->m_name << std::endl;
+            child->draw();
+            child->drawInherited();
+        }
     }
+
 }

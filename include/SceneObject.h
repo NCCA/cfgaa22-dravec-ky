@@ -23,10 +23,10 @@ class SceneObject
 
     //OpenGL
     virtual void drawInherited();
-    virtual void draw() {}
+    virtual void draw() {};
 
-    std::string getName() {return m_name;}
-    void setName(const std::string &_name) {m_name = _name;}
+    std::string getName() {return m_name;};
+    void setName(const std::string &_name) {m_name = _name;};
 
     int indexOf(std::shared_ptr<SceneObject> _child) const;
 
@@ -46,7 +46,10 @@ class SceneObject
     std::shared_ptr<SceneObject> m_parent;
 
     std::string m_name;
+    std::string m_path;
     int m_index;
+
+    bool canDraw = true;
 
 };
 

@@ -10,6 +10,9 @@
 #include <QResizeEvent>
 #include <QOpenGLWidget>
 #include <memory>
+#include "SceneMesh.h"
+#include "SceneObject.h"
+#include "SceneLight.h"
 
 /// @file NGLScene.h
 /// @brief a basic Qt GL window class for ngl demos
@@ -21,6 +24,14 @@
 /// @class GLWindow
 /// @brief our main glwindow widget for NGL applications all drawing elements are
 /// put in this file
+
+struct LightInfo
+{
+	ngl::Vec3 pos;
+	ngl::Vec3 col;
+	float intensity;
+};
+
 class NGLScene : public QOpenGLWidget
 {
 Q_OBJECT        // must include this if you use Qt signals/slots
@@ -34,6 +45,14 @@ public :
 
 		/// @brief dtor
   ~NGLScene() override;
+  	void loadMatricesToShader();
+	void loadLightsToShader();
+
+  	std::unordered_map<int,std::shared_ptr<SceneLight>> m_lights;
+	void updateShaderLights();
+	void updateLightInfo();
+	void loadShaderDefaults();
+
   
  public slots :
 	/// @brief a slot to toggle wireframe mode
@@ -73,6 +92,7 @@ public :
 	void setObjectMode(int _i);
 	/// @brief a slot to set the colour
 	void setColour();
+	
 
 private :
 	/// @brief m_wireframe mode
@@ -90,6 +110,7 @@ private :
 	std::unique_ptr<ngl::Text> m_text;
 
 protected:
+  void createShaderProgram(const std::string &_name, const std::string &_vertPath, const std::string &_fragPath);
   //----------------------------------------------------------------------------------------------------------------------
   /// @brief the windows params such as mouse and rotations etc
   //----------------------------------------------------------------------------------------------------------------------
@@ -138,8 +159,12 @@ private :
   void wheelEvent( QWheelEvent* _event ) override;
   void keyPressEvent(QKeyEvent * _event) override;
 
-  void loadMatricesToShader( );
+  
 
+  //std::unique_ptr<ngl::AbstractVAO> m_vao;
+	std::shared_ptr<SceneObject> m_mesh;
+
+	std::vector<LightInfo> m_lightInfoArray;
 	
 
 };

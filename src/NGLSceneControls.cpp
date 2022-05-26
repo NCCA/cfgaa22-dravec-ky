@@ -100,6 +100,7 @@ void NGLScene::keyPressEvent(QKeyEvent *_event)
   //std::cout << "pressed";
   if(_event->key() == Qt::Key_F)
   {
+    m_mesh = SceneManager::addObject("mesh",SceneObject::ObjectType::MESH, "path");
     m_v_rot.identity();
     m_v_trans.identity();
     m_v_scale.identity();

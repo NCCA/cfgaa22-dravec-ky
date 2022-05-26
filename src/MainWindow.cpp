@@ -37,15 +37,18 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), m_ui(new Ui::MainW
   connect(m_list,SIGNAL(selectionChangedSignal()),this,SLOT(updateMenu()));
 
   connect(m_ui->actionLoad, &QAction::triggered, this, [this]{ loadObjectFromFile(); });
-
+  connect(m_ui->actionCube, &QAction::triggered, this, [this]{ loadObject("cube"); });
   connect(m_ui->actionSphere, &QAction::triggered, this, [this]{ loadObject("sphere"); });
   connect(m_ui->actionTeapot, &QAction::triggered, this, [this]{ loadObject("teapot"); });
-  connect(m_ui->actionPlane, &QAction::triggered, this, [this]{ loadObject("cube"); });
+  connect(m_ui->actionPlane, &QAction::triggered, this, [this]{ loadObject("plane"); });
   connect(m_ui->actionCylinder, &QAction::triggered, this, [this]{ loadObject("cylinder"); });
   connect(m_ui->actionTorus, &QAction::triggered, this, [this]{ loadObject("torus"); });
+
+  connect(m_ui->actionPointLight, &QAction::triggered, this, [this]{ SceneManager::addLight(); });
+  
   
 
-
+  //SceneManager::addObject("mesh",SceneObject::ObjectType::MESH, "path");
   
 }
 
@@ -93,3 +96,4 @@ void MainWindow::loadObject(const std::string &_value)
 {
   SceneManager::addObject("", SceneObject::ObjectType::PRIMITIVE, _value);
 }
+

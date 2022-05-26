@@ -35,6 +35,8 @@ class SceneManager
     static void updateSelection();
     static std::shared_ptr<SceneObject> getSelectedObject() {return m_selected;};
     static std::shared_ptr<SceneObject> m_selected;
+    static void loadCameraMatrixToCurrentShader();
+    static void updateLightInfo() {m_scene->updateLightInfo();};
 
   private:
     static NGLScene * m_scene;
@@ -44,8 +46,9 @@ class SceneManager
 
     static int new_id;
     static std::shared_ptr<SceneObject> m_root;
+    static bool canDraw;
 
-    static std::unordered_map<int,std::shared_ptr<SceneLight>> m_lights;
+    
     
 };
 

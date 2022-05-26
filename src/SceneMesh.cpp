@@ -14,21 +14,24 @@
 SceneMesh::SceneMesh(const std::string &_name, const std::string &_fname)
 {
     m_name = _name;
-    m_obj = std::make_unique<MeshInfo>("../meshes/testgeo.obj");
+    m_path = _fname;
+    isObj = true;
+    m_type = ObjectType::MESH;
+    std::cout << "\nScene Mesh Created!";
+}
+
+void SceneMesh::load(const std::string &path)
+{
+    auto obj = std::make_unique<ngl::Obj>(path);
+    m_obj = std::move(obj);
     
     if(m_obj->isLoaded())
     {
         m_obj->createVAO();
-        ngl::VAOPrimitives::addToPrimitives("test",std::move(m_obj->moveVAO()));
-
-        //std::cout << std::endl << m_obj->getNumFaces();
-        //std::cout << std::endl << m_vao->getBufferID();
-        //std::cout << std::endl << m_obj->getBBox().width();
+        
+        m_vao = m_obj->moveVAO();
         VAO_loaded = true;
-        isObj = true;
     }
-
-    m_type = ObjectType::MESH;
 }
 
 SceneMesh::SceneMesh(const std::string &_primname)
@@ -45,33 +48,44 @@ SceneMesh::SceneMesh(const std::string &_primname)
     }
     else if(raw_vao == nullptr) std::cout << m_name <<"\n\nnull ptr vao lol";
     m_type = ObjectType::PRIMITIVE;
+    draw();
 }
 
 void SceneMesh::draw()
-{
-    // if(VAO_loaded)
-    // {
-        // auto matrix = transform.getMatrix();
-        // ngl::ShaderLib::setUniformMatrix4fv("inTransform",&matrix.m_00);
+{   
+    ngl::ShaderLib::use("PBR");
+    if(isObj && !VAO_loaded)
+    {
+        load(m_path);
+    }
+    if(VAO_loaded)
+    {
+        auto matrix = transform.getMatrix();
+        ngl::ShaderLib::setUniformMatrix4fv("inTransform",&matrix.m_00);
+        m_vao->bind();
+        if(isSelected)
+        {
+            glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+            glPolygonOffset(-0.1,0.0);
+            ngl::ShaderLib::use("Unlit");
+            
+            SceneManager::loadCameraMatrixToCurrentShader();
+            ngl::ShaderLib::setUniformMatrix4fv("inTransform",&matrix.m_00);
+            auto col = ngl::Vec3(1);
+            ngl::ShaderLib::setUniform("inCol",col);
+
+            m_vao->draw();
+
+            glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+            ngl::ShaderLib::use("PBR");
+        }
+        m_vao->draw();
         
-    //     m_vao->bind();
-    //     glBindBuffer(GL_ARRAY_BUFFER, m_vao->getBufferID());
-    //     //std::cout << std::endl << m_vao->numIndices();
-    //     if(isSelected)
-    //     {
-    //         glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-    //         m_vao->draw();
-    //         glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-    //     }
-    //     else m_vao->draw();
 
-    //     m_vao->unbind();
-    // }
-    auto matrix = transform.getMatrix();
-    ngl::ShaderLib::setUniformMatrix4fv("inTransform",&matrix.m_00);
-    ngl::VAOPrimitives::draw("test");
-
+        m_vao->unbind();
+    }
 }
+
 SceneMesh::~SceneMesh()
 {
     m_vao.release();
