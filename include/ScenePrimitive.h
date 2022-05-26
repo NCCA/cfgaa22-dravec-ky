@@ -2,14 +2,7 @@
 #define SCENE_PRIMITIVE_H_
 
 #include "SceneObject.h"
-
-struct shadingInfo
-{
-  ngl::Vec3 col;
-  float diff;
-  float spec;
-  float ambient;
-};
+#include "SceneMesh.h"
 
 //Temporary wrapper for calling VAOPrimitives draw functions using the Scene Manager for testing
 class ScenePrimitive : public SceneObject
@@ -19,7 +12,6 @@ class ScenePrimitive : public SceneObject
     void draw () override;
     ~ScenePrimitive() {};
 protected:
-    shadingInfo m_shading_info;
 };
 
 #endif

@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include "SceneManager.h"
+#include "SceneObject.h"
 #include <fmt/format.h>
 #include <string>
 
@@ -85,10 +86,10 @@ void MainWindow::loadObjectFromFile()
   auto path_list = path.split("/");
   auto name = path_list.last().split(".").first();
 
-  SceneManager::addObject(name.toStdString(), SceneManager::ObjectType::MESH, path.toStdString());
+  SceneManager::addObject(name.toStdString(), SceneObject::ObjectType::MESH, path.toStdString());
 }
 
 void MainWindow::loadObject(const std::string &_value)
 {
-  SceneManager::addObject("", SceneManager::ObjectType::PRIMITIVE, _value);
+  SceneManager::addObject("", SceneObject::ObjectType::PRIMITIVE, _value);
 }

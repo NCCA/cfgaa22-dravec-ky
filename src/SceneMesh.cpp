@@ -1,4 +1,6 @@
 #include "SceneMesh.h"
+#include "SceneManager.h"
+
 #include <iostream>
 #include <QFileDialog>
 #include <ngl/Obj.h>
@@ -17,14 +19,16 @@ SceneMesh::SceneMesh(const std::string &_name, const std::string &_fname)
     if(m_obj->isLoaded())
     {
         m_obj->createVAO();
-        m_vao = m_obj->moveVAO();
-        std::cout << std::endl << m_obj->getNumFaces();
+        ngl::VAOPrimitives::addToPrimitives("test",std::move(m_obj->moveVAO()));
+
+        //std::cout << std::endl << m_obj->getNumFaces();
         //std::cout << std::endl << m_vao->getBufferID();
         //std::cout << std::endl << m_obj->getBBox().width();
         VAO_loaded = true;
         isObj = true;
-        
     }
+
+    m_type = ObjectType::MESH;
 }
 
 SceneMesh::SceneMesh(const std::string &_primname)
@@ -40,28 +44,33 @@ SceneMesh::SceneMesh(const std::string &_primname)
         VAO_loaded = true;
     }
     else if(raw_vao == nullptr) std::cout << m_name <<"\n\nnull ptr vao lol";
+    m_type = ObjectType::PRIMITIVE;
 }
 
 void SceneMesh::draw()
 {
-    if(VAO_loaded)
-    {
-        auto matrix = transform.getMatrix();
-        ngl::ShaderLib::setUniformMatrix4fv("inTransform",&matrix.m_00);
+    // if(VAO_loaded)
+    // {
+        // auto matrix = transform.getMatrix();
+        // ngl::ShaderLib::setUniformMatrix4fv("inTransform",&matrix.m_00);
         
-        m_vao->bind();
-        glBindBuffer(GL_ARRAY_BUFFER, m_vao->getBufferID());
-        //std::cout << std::endl << m_vao->numIndices();
-        if(isSelected)
-        {
-            glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-            m_vao->draw();
-            glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-        }
-        else m_vao->draw();
+    //     m_vao->bind();
+    //     glBindBuffer(GL_ARRAY_BUFFER, m_vao->getBufferID());
+    //     //std::cout << std::endl << m_vao->numIndices();
+    //     if(isSelected)
+    //     {
+    //         glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    //         m_vao->draw();
+    //         glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+    //     }
+    //     else m_vao->draw();
 
-        m_vao->unbind();
-    }
+    //     m_vao->unbind();
+    // }
+    auto matrix = transform.getMatrix();
+    ngl::ShaderLib::setUniformMatrix4fv("inTransform",&matrix.m_00);
+    ngl::VAOPrimitives::draw("test");
+
 }
 SceneMesh::~SceneMesh()
 {

@@ -1,12 +1,12 @@
 #include "SceneLight.h"
+#include "SceneManager.h"
 #include "Utils.h"
 
-SceneLight::SceneLight(ngl::Vec3 _pos, int _intensity, ngl::Vec3 _col)
+SceneLight::SceneLight(int _id)
 {
- std::cout << "\nLight created!\n";
- this->transform.setPosition(_pos);
- m_intensity = _intensity;
- m_colour = _col;
+    std::cout << "\nLight created!\n";
+    m_id = _id;
+    m_type = ObjectType::LIGHT;
 }
 
 void SceneLight::draw()

@@ -6,11 +6,14 @@
 class SceneLight : public SceneObject
 {
     public:
-      SceneLight(ngl::Vec3 _pos, int _intensity, ngl::Vec3 _col);
+      SceneLight(int _id);
       void draw() override;
+      void setIntensity(int _intensity) {m_intensity = _intensity;};
+      void setColour(ngl::Vec3 _col) {m_colour = _col;};
       ~SceneLight() {};
     private:
-        int m_intensity;
-        ngl::Vec3 m_colour;
+        int m_intensity = 1;
+        ngl::Vec3 m_colour = ngl::Vec3(1.0f,1.0f,1.0f);
+        int m_id = -1;
 };
 #endif

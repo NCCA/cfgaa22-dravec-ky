@@ -33,6 +33,7 @@ void NGLScene::initializeGL()
   ngl::VAOPrimitives::createTorus("torus",0.3,1,8,16);
   ngl::VAOPrimitives::createCylinder("cylinder",0.8,2,16,3);
 
+  auto m_obj = std::make_unique<MeshInfo>("../meshes/testgeo.obj");
   //std::shared_ptr<SceneObject> obj;
   // for(int i=0;i<10;i++)
   // {
@@ -126,7 +127,6 @@ void NGLScene::paintGL()
   }
   ngl::ShaderLib::use("PBR");
   loadMatricesToShader();
-
   SceneManager::draw();
 
 	m_text->renderText(10,580,"Qt Gui Demo");

@@ -12,6 +12,16 @@ uniform float spec;
 
 uniform sampler2D outTex;
 
+struct Material
+{
+  vec3 diffuse;
+  vec3 specular;
+  vec3 ambient;
+  float shininess;
+};
+
+uniform Material material;
+
 void main()
 {
     fragColour=vec4(vertCol,1.0f);

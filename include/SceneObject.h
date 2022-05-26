@@ -10,14 +10,16 @@
 class SceneObject
 {
   public:
+    enum class ObjectType {MESH, LIGHT, PRIMITIVE};
+
     SceneObject();
     virtual ~SceneObject();
-
     int childCount() const;
     static void setParentChild(std::shared_ptr<SceneObject> _parent, std::shared_ptr<SceneObject> _child);
     std::shared_ptr<SceneObject> getChild(int index);
     std::shared_ptr<SceneObject> getParent() {return m_parent;}
     bool removeChild(int index);
+    ObjectType getType() {return m_type;};
 
     //OpenGL
     virtual void drawInherited();
@@ -33,6 +35,9 @@ class SceneObject
     bool isSelected = false;
     
   protected:
+
+    ObjectType m_type;
+    
     void setParent(std::shared_ptr<SceneObject> _parent);
     void addChild(std::shared_ptr<SceneObject> _child);
     //void loadShaderInfo();

@@ -7,6 +7,14 @@
 #include "ScenePrimitive.h"
 #include <ngl/Obj.h>
 
+struct Material
+{
+  ngl::Vec3 diffuse;
+  ngl::Vec3 specular;
+  ngl::Vec3 ambient;
+  float shininess;
+};
+
 class MeshInfo: public ngl::Obj
 {
   public:
@@ -26,7 +34,7 @@ class SceneMesh : public SceneObject
      ~SceneMesh();
     
   protected:
-    shadingInfo m_shading_info;
+    Material m_shading_info;
     std::unique_ptr<ngl::AbstractVAO> m_vao;
     bool VAO_loaded = false;
 

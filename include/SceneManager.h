@@ -13,6 +13,8 @@
 #include "NGLSceneTreeView.h"
 #include "SceneObject.h"
 #include "SceneMesh.h"
+#include "SceneLight.h"
+
 #include "NGLObjectMenu.h"
 #include "MainWindow.h"
 
@@ -22,8 +24,10 @@ class SceneManager
   public:
     static bool initialize(NGLScene * _scene, NGLSceneTreeView * _list, NGLObjectMenu * _menu);
 
-    enum class ObjectType {MESH, LIGHT, PRIMITIVE};
-    static std::shared_ptr<SceneObject> addObject(const std::string &_name = "", ObjectType _type = ObjectType::MESH, const std::string &_path = NULL);
+    
+    static std::shared_ptr<SceneObject> addObject(const std::string &_name = "default", SceneObject::ObjectType _type = SceneObject::ObjectType::PRIMITIVE, const std::string &_path = "teapot");
+    static std::shared_ptr<SceneObject> addLight(ngl::Vec3 _pos = ngl::Vec3(0.0f,0.0f,0.0f), int _intensity = 10, ngl::Vec3 _col = ngl::Vec3(0.0f,0.0f,0.0f),const std::string &_name = "light");
+
     static bool removeSelectedObject();
     static bool draw();
     static void loadObject();
@@ -41,6 +45,7 @@ class SceneManager
     static int new_id;
     static std::shared_ptr<SceneObject> m_root;
 
+    static std::unordered_map<int,std::shared_ptr<SceneLight>> m_lights;
     
 };
 
