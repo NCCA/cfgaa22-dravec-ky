@@ -5,25 +5,26 @@ layout (location=2) in vec2 inUV;
 
 layout (location=3) uniform mat4 inTransform;
 
-out vec3 vertCol;
 out vec2 TexCoords;
 out vec3 WorldPos;
 out vec3 Normal;
+out vec4 FragPosLightSpace;
 
+uniform mat4 lightSpaceMatrix;
 
-layout( std140) uniform TransformUBO
+layout (std140) uniform TransformVP
 {
-  mat4 MVP;
-  mat4 normalMatrix;
-  mat4 M;
-
-}transforms;
+    mat4 V;
+    mat4 P;
+    mat4 VP;
+} t;
 
 void main()
 {
     WorldPos = vec3(inTransform * vec4(inPos,1.0f));
-    gl_Position = transforms.MVP*vec4(WorldPos,1.0);
-    Normal = vec3(transforms.normalMatrix*vec4(inN,1.0f));
-    vertCol = normalize(mat3(transforms.normalMatrix)*inN);
+    Normal = normalize(mat3(inTransform)*inN);
     TexCoords = inUV;
+    FragPosLightSpace = lightSpaceMatrix * vec4(WorldPos,1.0);
+
+    gl_Position = t.VP*vec4(WorldPos,1.0);
 }

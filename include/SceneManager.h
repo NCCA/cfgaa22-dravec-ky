@@ -26,10 +26,10 @@ class SceneManager
 
     
     static std::shared_ptr<SceneObject> addObject(const std::string &_name = "default", SceneObject::ObjectType _type = SceneObject::ObjectType::PRIMITIVE, const std::string &_path = "teapot");
-    static std::shared_ptr<SceneObject> addLight(ngl::Vec3 _pos = ngl::Vec3(0.0f,0.0f,0.0f), int _intensity = 10, ngl::Vec3 _col = ngl::Vec3(0.0f,0.0f,0.0f),const std::string &_name = "light");
+    static std::shared_ptr<SceneObject> addLight(ngl::Vec3 _pos = ngl::Vec3(0.0f,0.0f,0.0f), int _intensity = 10, ngl::Vec3 _col = ngl::Vec3(1.0f,1.0f,1.0f),const std::string &_name = "light");
 
     static bool removeSelectedObject();
-    static bool draw();
+    static bool draw(const std::string &_shaderName = "PBR");
     static void loadObject();
     static void update();
     static void updateSelection();
@@ -37,11 +37,13 @@ class SceneManager
     static std::shared_ptr<SceneObject> m_selected;
     static void loadCameraMatrixToCurrentShader();
     static void updateLightInfo() {m_scene->updateLightInfo();};
+    static transform getViewProjection() {return m_scene->getViewProjection();};
 
   private:
     static NGLScene * m_scene;
     static NGLSceneTreeView * m_list;
     static NGLObjectMenu * m_menu;
+    static std::string m_curShader;
 
 
     static int new_id;

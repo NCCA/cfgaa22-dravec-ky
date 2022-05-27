@@ -7,7 +7,7 @@ class SceneLight : public SceneObject
 {
     public:
       SceneLight(int _id);
-      void draw() override;
+      void draw(const std::string &_shaderName = "PBR") override;
       void setIntensity(int _intensity) {m_intensity = _intensity;};
       void setColour(ngl::Vec3 _col) {m_colour = _col;};
 
@@ -17,7 +17,7 @@ class SceneLight : public SceneObject
 
       ~SceneLight() {};
     private:
-        float m_intensity = 1;
+        float m_intensity = 1.0f;
         ngl::Vec3 m_colour = ngl::Vec3(1.0f,1.0f,1.0f);
         int m_id = -1;
 };

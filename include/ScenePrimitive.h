@@ -9,7 +9,7 @@ class ScenePrimitive : public SceneObject
 {
   public:
     ScenePrimitive(const std::string &_name);
-    void draw () override;
+    void draw (const std::string &_shaderName = "PBR") override;
     ~ScenePrimitive() {};
 protected:
 };

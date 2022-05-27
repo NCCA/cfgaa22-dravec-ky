@@ -4,6 +4,9 @@
 #include <QGroupBox>
 #include <QSpinBox>
 #include "SceneObject.h"
+#include <QLayout>
+#include <QBoxLayout>
+#include <QPushButton>
 
 //base class definition from https://doc.qt.io/archives/4.6/model-view-creating-models.html
 class NGLObjectMenu : public QGroupBox
@@ -13,32 +16,59 @@ class NGLObjectMenu : public QGroupBox
     NGLObjectMenu(QWidget *parent = nullptr);
     ~NGLObjectMenu() {};
     void updateObject(std::shared_ptr<SceneObject> _obj);
-    void setTransforms();
+    void setObject();
     void setTranslate(int _i, double _val);
     void setRotate(int _i, double _val);
     void setScale(int _i, double _val);
+    ngl::Vec3 getColourMenu(QWidget *w);
   public slots:
 
   private:
+    void setupTransformMenu();
+    void setupMaterialMenu();
+    void setupLightMenu();
+
+    QBoxLayout * m_mainLayout = new QBoxLayout(QBoxLayout::Direction::TopToBottom);
+
+    QGroupBox * m_transformBox = new QGroupBox;
     QDoubleSpinBox * m_translateX = new QDoubleSpinBox;
     QDoubleSpinBox * m_translateY = new QDoubleSpinBox;
     QDoubleSpinBox * m_translateZ = new QDoubleSpinBox;
-
     QSpinBox * m_rotateX = new QSpinBox;
     QSpinBox * m_rotateY = new QSpinBox;
     QSpinBox * m_rotateZ = new QSpinBox;
-
     QDoubleSpinBox * m_scaleX = new QDoubleSpinBox;
     QDoubleSpinBox * m_scaleY = new QDoubleSpinBox;
     QDoubleSpinBox * m_scaleZ = new QDoubleSpinBox;
-
     ngl::Vec3 m_pos;
     ngl::Vec3 m_rot;
     ngl::Vec3 m_scale;
 
+    QGroupBox * m_lightBox = new QGroupBox;
+    QDoubleSpinBox * m_lightIntensity = new QDoubleSpinBox;
+    QPushButton * m_lightColour = new QPushButton("   ");
+    float m_l_int;
+    ngl::Vec3 m_l_col;
+
+    QGroupBox * m_materialBox = new QGroupBox;
+    QPushButton * m_Albedo = new QPushButton("   ");
+    QDoubleSpinBox * m_Roughness = new QDoubleSpinBox;
+    QDoubleSpinBox * m_Metallic = new QDoubleSpinBox;
+    QDoubleSpinBox * m_AO = new QDoubleSpinBox;
+    ngl::Vec3 m_m_albedo;
+    float m_m_rough;
+    float m_m_metallic;
+    float m_m_ao;
+
     std::shared_ptr<SceneObject> m_curObject;
 
     bool update = true;
+
+    QString m_col_sheet = R"(
+    QPushButton {
+    background-color: %1;
+    }
+    )";
 };
 
 #endif

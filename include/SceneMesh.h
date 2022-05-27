@@ -9,10 +9,10 @@
 
 struct Material
 {
-  ngl::Vec3 diffuse;
-  ngl::Vec3 specular;
-  ngl::Vec3 ambient;
-  float shininess;
+  ngl::Vec3 albedo = ngl::Vec3(0.8f, 0.8f, 0.8f);
+  float metallic = 0.0f;
+  float roughness = 0.38f;
+  float ao = 0.2f;
 };
 
 class MeshInfo: public ngl::Obj
@@ -30,12 +30,15 @@ class SceneMesh : public SceneObject
     SceneMesh(const std::string &_name, const std::string &_fname);
     SceneMesh(const std::string &_primname);
     //bool load(const std::string &_fname,CalcBB _calcBB=CalcBB::True) noexcept;
-    void draw() override;
+    void draw(const std::string &_shaderName = "PBR") override;
+    void setPBR();
+    void setWireframe();
+    Material m_material;
      ~SceneMesh();
     
   protected:
     void load(const std::string &path);
-    Material m_shading_info;
+    
     std::unique_ptr<ngl::AbstractVAO> m_vao;
     bool VAO_loaded = false;
 

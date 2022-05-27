@@ -32,6 +32,13 @@ struct LightInfo
 	float intensity;
 };
 
+struct transform
+  {
+    ngl::Mat4 V;
+    ngl::Mat4 P;
+    ngl::Mat4 VP;
+  };
+
 class NGLScene : public QOpenGLWidget
 {
 Q_OBJECT        // must include this if you use Qt signals/slots
@@ -46,57 +53,29 @@ public :
 		/// @brief dtor
   ~NGLScene() override;
   	void loadMatricesToShader();
-	void loadLightsToShader();
-
-  	std::unordered_map<int,std::shared_ptr<SceneLight>> m_lights;
-	void updateShaderLights();
-	void updateLightInfo();
-	void loadShaderDefaults();
-
-  
- public slots :
-	/// @brief a slot to toggle wireframe mode
-	/// @param[in] _mode the mode passed from the toggle
-	/// button
-	void toggleWireframe( bool _mode	 );
-	/// @brief set the X rotation value
-	/// @parm[in] _x the value to set
-	void setXRotation( double _x	);
-	/// @brief set the Y rotation value
-	/// @parm[in] _y the value to set
-	void setYRotation( double _y	);
-	/// @brief set the Z rotation value
-	/// @parm[in] _z the value to set
-	void setZRotation( double _z	);
-	/// @brief set the X scale value
-	/// @parm[in] _x the value to set
-	void setXScale( double _x	);
-	/// @brief set the Y scale value
-	/// @parm[in] _y the value to set
-	void setYScale( double _y	);
-	/// @brief set the Z scale value
-	/// @parm[in] _z the value to set
-	void setZScale( double _z	);
-
-	/// @brief set the X position value
-	/// @parm[in] _x the value to set
-	void setXPosition( double _x	);
-	/// @brief set the Y position value
-	/// @parm[in] _y the value to set
-	void setYPosition(double _y);
-	/// @brief set the Z position value
-	/// @parm[in] _z the value to set
-	void setZPosition(double _z	);
-	/// @brief set the draw object
-	/// @param[in] _i the index of the object
-	void setObjectMode(int _i);
-	/// @brief a slot to set the colour
-	void setColour();
 	
 
-private :
+  	std::unordered_map<int,std::shared_ptr<SceneLight>> m_lights;
+	void updateNumLights();
+	void updateLightInfo();
+	void loadLightsToShader();
+
+	void loadShaderDefaults();
+	void setViewToSelected();
+  transform getViewProjection();
+
+  void initDirShadowMaps();
+  void renderDirShadowMaps();
+  void loadDirShadowMatrices();
+
+  void initOmniShadowMaps();
+  void renderOmniShadowMaps();
+  void loadOmniShadowMatrices();
+	
+
+private:
 	/// @brief m_wireframe mode
-	bool m_wireframe;
+	bool m_wireframe = false;
 	/// @brief rotation data
   ngl::Vec3 m_rotation;
 	/// @brief scale data
@@ -109,8 +88,10 @@ private :
 	//----------------------------------------------------------------------------------------------------------------------
 	std::unique_ptr<ngl::Text> m_text;
 
+  transform m_VP;
+
 protected:
-  void createShaderProgram(const std::string &_name, const std::string &_vertPath, const std::string &_fragPath);
+  void createShaderProgram(const std::string &_name, const std::string &_vertPath, const std::string &_fragPath, const std::string &_geoPath = "");
   //----------------------------------------------------------------------------------------------------------------------
   /// @brief the windows params such as mouse and rotations etc
   //----------------------------------------------------------------------------------------------------------------------
@@ -159,10 +140,21 @@ private :
   void wheelEvent( QWheelEvent* _event ) override;
   void keyPressEvent(QKeyEvent * _event) override;
 
+  GLint m_mainFBO;
+
+  const unsigned int m_SHADOW_WIDTH = 1024, m_SHADOW_HEIGHT = 1024;
+  GLuint m_depthMapFBO;
+  GLuint m_depthMap;
+
+  GLuint m_depthCubeMapFBO;
+  GLuint m_depthCubeMap;
+
   
+
 
   //std::unique_ptr<ngl::AbstractVAO> m_vao;
 	std::shared_ptr<SceneObject> m_mesh;
+  std::shared_ptr<SceneObject> m_omniLight;
 
 	std::vector<LightInfo> m_lightInfoArray;
 	

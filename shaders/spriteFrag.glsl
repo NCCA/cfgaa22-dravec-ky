@@ -6,13 +6,9 @@ in vec3 vertCol;
 in vec2 UV;
 in vec3 worldPos;
 
-uniform vec3 col;
-uniform float diff;
-uniform float spec;
-
-uniform sampler2D outTex;
+uniform vec4 inCol;
 
 void main()
 {
-    fragColour=vec4(vertCol,1.0f);
+    fragColour=inCol;
 }

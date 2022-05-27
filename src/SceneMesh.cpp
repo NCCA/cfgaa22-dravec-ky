@@ -51,37 +51,58 @@ SceneMesh::SceneMesh(const std::string &_primname)
     draw();
 }
 
-void SceneMesh::draw()
-{   
+void SceneMesh::setPBR()
+{
     ngl::ShaderLib::use("PBR");
+    SceneManager::loadCameraMatrixToCurrentShader();
+    ngl::ShaderLib::use("PBR");
+    ngl::ShaderLib::setUniform("albedo",    m_material.albedo.m_r,
+                                            m_material.albedo.m_g,
+                                            m_material.albedo.m_b);
+    ngl::ShaderLib::setUniform("metallic",  m_material.metallic);
+    ngl::ShaderLib::setUniform("roughness", m_material.roughness);
+    ngl::ShaderLib::setUniform("ao",        m_material.ao);
+}
+
+void SceneMesh::setWireframe()
+{
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    glPolygonOffset(-0.2,0.0);
+    ngl::ShaderLib::use("Unlit");
+
+    SceneManager::loadCameraMatrixToCurrentShader();
+    auto col = ngl::Vec3(0);
+    ngl::ShaderLib::setUniform("inCol",ngl::Vec4(col,0.5f));
+
+    auto matrix = transform.getMatrix();
+    ngl::ShaderLib::setUniformMatrix4fv("inTransform",&matrix.m_00);
+
+}
+
+void SceneMesh::draw(const std::string &_shaderName)
+{   
+    
     if(isObj && !VAO_loaded)
     {
         load(m_path);
     }
     if(VAO_loaded)
-    {
+    {   
+        m_vao->bind();
         auto matrix = transform.getMatrix();
         ngl::ShaderLib::setUniformMatrix4fv("inTransform",&matrix.m_00);
-        m_vao->bind();
-        if(isSelected)
+        if(_shaderName=="PBR")
         {
-            glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-            glPolygonOffset(-0.1,0.0);
-            ngl::ShaderLib::use("Unlit");
-            
-            SceneManager::loadCameraMatrixToCurrentShader();
-            ngl::ShaderLib::setUniformMatrix4fv("inTransform",&matrix.m_00);
-            auto col = ngl::Vec3(1);
-            ngl::ShaderLib::setUniform("inCol",col);
-
-            m_vao->draw();
-
-            glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-            ngl::ShaderLib::use("PBR");
+            setPBR();
+            if(isSelected)
+            {
+                setWireframe();
+                m_vao->draw();
+                glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+                ngl::ShaderLib::use("PBR");
+            }
         }
         m_vao->draw();
-        
-
         m_vao->unbind();
     }
 }

@@ -6,9 +6,9 @@ in vec3 vertCol;
 in vec2 UV;
 in vec3 worldPos;
 
-uniform vec3 inCol;
+uniform vec4 inCol;
 
 void main()
 {
-    fragColour=vec4(inCol, 1.0f);
+    fragColour=inCol;
 }

@@ -59,7 +59,7 @@ SceneObject::~SceneObject()
     std::cout << "\nScene Object " << m_name << " destroyed!\n";
 }
 
-void SceneObject::drawInherited()
+void SceneObject::drawInherited(const std::string &_shaderName)
 {
     if(canDraw)
     {
@@ -67,8 +67,8 @@ void SceneObject::drawInherited()
         for(auto child : m_children)
         {
             //std::cout << child->m_name << std::endl;
-            child->draw();
-            child->drawInherited();
+            child->draw(_shaderName);
+            child->drawInherited(_shaderName);
         }
     }
 

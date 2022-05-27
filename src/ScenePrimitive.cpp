@@ -8,7 +8,7 @@ ScenePrimitive::ScenePrimitive(const std::string &_name)
     m_name = _name;
 }
 
-void ScenePrimitive::draw()
+void ScenePrimitive::draw(const std::string &_shaderName)
 {   
     auto matrix = transform.getMatrix();
     ngl::ShaderLib::setUniformMatrix4fv("inTransform",&matrix.m_00);

@@ -22,8 +22,8 @@ class SceneObject
     ObjectType getType() {return m_type;};
 
     //OpenGL
-    virtual void drawInherited();
-    virtual void draw() {};
+    virtual void drawInherited(const std::string &_shaderName = "PBR");
+    virtual void draw(const std::string &_shaderName = "PBR") {};
 
     std::string getName() {return m_name;};
     void setName(const std::string &_name) {m_name = _name;};

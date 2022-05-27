@@ -14,12 +14,10 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
   // note the method buttons() is the button state when event was called
   // that is different from button() which is used to check which button was
   // pressed when the mousePress/Release event is generated
-  if ( m_win.rotate && _event->buttons() == Qt::LeftButton )
+  if (_event->buttons() == Qt::LeftButton )
   {
     int diffx = _event->x() - m_win.origX;
     int diffy = _event->y() - m_win.origY;
-    m_win.spinXFace += static_cast<int>( 0.5f * diffy );
-    m_win.spinYFace += static_cast<int>( 0.5f * diffx );
 
     
     ngl::Mat4 temp_rot;
@@ -39,7 +37,7 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
     update();
   }
   // right mouse translate code
-  else if ( m_win.translate && _event->buttons() == Qt::RightButton )
+  else if (_event->buttons() == Qt::RightButton )
   {
     int diffX      = static_cast<int>( _event->x() - m_win.origXPos );
     int diffY      = static_cast<int>( _event->y() - m_win.origYPos );
@@ -68,14 +66,12 @@ void NGLScene::mousePressEvent( QMouseEvent* _event )
   {
     m_win.origX  = _event->x();
     m_win.origY  = _event->y();
-    m_win.rotate = true;
   }
   // right mouse translate mode
   else if ( _event->button() == Qt::RightButton )
   {
     m_win.origXPos  = _event->x();
     m_win.origYPos  = _event->y();
-    m_win.translate = true;
   }
 }
 
@@ -97,17 +93,7 @@ void NGLScene::mouseReleaseEvent( QMouseEvent* _event )
 
 void NGLScene::keyPressEvent(QKeyEvent *_event)
 {
-  //std::cout << "pressed";
-  if(_event->key() == Qt::Key_F)
-  {
-    m_mesh = SceneManager::addObject("mesh",SceneObject::ObjectType::MESH, "path");
-    m_v_rot.identity();
-    m_v_trans.identity();
-    m_v_scale.identity();
 
-    auto new_pos = SceneManager::getSelectedObject()->transform.getPosition();
-  }
-  update();
 }
 
 //----------------------------------------------------------------------------------------------------------------------

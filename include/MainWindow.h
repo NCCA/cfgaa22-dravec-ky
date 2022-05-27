@@ -44,6 +44,7 @@ private:
 		NGLScene *m_gl;
         NGLSceneTreeView *m_list;
         NGLObjectMenu *m_menu;
+        void keyPressEvent(QKeyEvent * _event) override;
 };
 
 

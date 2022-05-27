@@ -97,3 +97,15 @@ void MainWindow::loadObject(const std::string &_value)
   SceneManager::addObject("", SceneObject::ObjectType::PRIMITIVE, _value);
 }
 
+void MainWindow::keyPressEvent(QKeyEvent * _event)
+{
+  //std::cout << "pressed";
+  if(_event->key() == Qt::Key_F)
+  {
+    m_gl->setViewToSelected();
+    //m_mesh = SceneManager::addObject("mesh",SceneObject::ObjectType::MESH, "path");
+
+  }
+  update();
+}
+

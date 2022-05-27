@@ -11,16 +11,26 @@ SceneLight::SceneLight(int _id)
     m_type = ObjectType::LIGHT;
 }
 
-void SceneLight::draw()
+void SceneLight::draw(const std::string &_shaderName)
 {
-    transform.setScale(0.3,0.3,0.3);
-    auto matrix = transform.getMatrix();
-    ngl::ShaderLib::use("Unlit");
-    SceneManager::loadCameraMatrixToCurrentShader();
-    ngl::ShaderLib::setUniformMatrix4fv("inTransform",&matrix.m_00);
-    auto col = ngl::Vec3(1);
-    ngl::ShaderLib::setUniform("inCol",col);
-    ngl::VAOPrimitives::draw("sphere");
-    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-    ngl::ShaderLib::use("PBR");
+    if(_shaderName == "PBR")
+    {
+        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+        transform.setScale(0.5,0.5,0.5);
+        auto matrix = transform.getMatrix();
+        ngl::ShaderLib::use("Unlit");
+        SceneManager::loadCameraMatrixToCurrentShader();
+
+        //matrix = vp.VP;
+        //ngl::ShaderLib::setUniformMatrix4fv("spriteVP",&matrix.m_00);
+
+        ngl::ShaderLib::setUniformMatrix4fv("inTransform",&matrix.m_00);
+        if(isSelected) ngl::ShaderLib::setUniform("inCol",ngl::Vec4(m_colour, 0.5));
+        else ngl::ShaderLib::setUniform("inCol",ngl::Vec4(m_colour, 0.2));
+
+        ngl::VAOPrimitives::draw("sphere");
+        glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+        ngl::ShaderLib::use("PBR");
+    }
+    
 }
