@@ -2,6 +2,7 @@
 #include "SceneManager.h"
 #include "Utils.h"
 #include <iostream>
+#include <cstddef>
 #include <ngl/Vec3.h>
 #include <ngl/NGLInit.h>
 #include <ngl/VAOPrimitives.h>
@@ -30,10 +31,10 @@ void NGLScene::initializeGL()
   ngl::NGLInit::initialize();
   //prepare some basic shapes
   ngl::VAOPrimitives::createTrianglePlane("plane",1,1,1,1,ngl::Vec3(0,1,0));
-  ngl::VAOPrimitives::createTrianglePlane("screenQuad",2,2,1,1,ngl::Vec3(0,1,0));
   ngl::VAOPrimitives::createTorus("torus",0.3,1,8,16);
   ngl::VAOPrimitives::createCylinder("cylinder",0.8,2,16,3);
   ngl::VAOPrimitives::createSphere("sphere",1,16);
+  createScreenQuad();
 
   //std::shared_ptr<SceneObject> obj;
   // for(int i=0;i<10;i++)
@@ -68,13 +69,21 @@ void NGLScene::initializeGL()
   obj->transform.setScale(10.0,10.0f,10.0f);
   SceneManager::addObject("teapot", SceneObject::ObjectType::PRIMITIVE, "teapot");
 
+  //BASE
   createShaderProgram("PBR", "shaders/pbrVertex.glsl", "shaders/pbrFrag.glsl");
   createShaderProgram("Sprite", "shaders/spriteVertex.glsl", "shaders/spriteFrag.glsl");
   createShaderProgram("Unlit", "shaders/pbrVertex.glsl", "shaders/unlitFrag.glsl");
-  createShaderProgram("shadowMap", "shaders/shadowVertex.glsl", "shaders/shadowFrag.glsl");
+
+  //SHADOW MAPS
+  createShaderProgram("shadowMap", "shaders/shadow/shadowVertex.glsl", "shaders/shadow/shadowFrag.glsl");
+  createShaderProgram("shadowOmniMap", "shaders/shadow/omniShadowVertex.glsl", "shaders/shadow/omniShadowFrag.glsl",
+                                                                  "shaders/shadow/omniShadowGeo.glsl");
+
+  //DEFERRED
   createShaderProgram("Screen", "shaders/screenVertex.glsl", "shaders/screenFrag.glsl");
-  createShaderProgram("shadowOmniMap", "shaders/omniShadowVertex.glsl", "shaders/omniShadowFrag.glsl",
-                                                                  "shaders/omniShadowGeo.glsl");
+  createShaderProgram("gBufferPBR", "shaders/pbrVertex.glsl", "shaders/deferred/deferredFrag.glsl");
+  createShaderProgram("DeferredPBR", "shaders/screenVertex.glsl", "shaders/deferred/deferredPBRFrag.glsl");
+
 
   // now a light
   // setup the default shader mate*m_v_transform.getMatrix()oughness",0.38f);
@@ -93,12 +102,14 @@ void NGLScene::initializeGL()
   //     m_obj->createVAO();
   //     ngl::VAOPrimitives::addToPrimitives("test",std::move(m_obj->moveVAO()));
   // }
-  static GLint result;
-  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &result);
-  std::cout << "!!!!!!!!!!!!!!!!!" <<result;
+
+  auto tex = ngl::Texture("../textures/rustediron2_basecolor.png");
+  m_test_tex_id = tex.setTextureGL();
+
   initOmniShadowMaps();
-  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &result);
-  std::cout << "!!!!!!!!!!!!!!!!!" <<result;
+  initDeferred();
+  updateLightInfo();
+
 
   QTimer *fpsTimer = new QTimer(this);
   connect(fpsTimer, &QTimer::timeout, this, [this]{update();});
@@ -155,6 +166,90 @@ void NGLScene::initOmniShadowMaps()
 
 }
 
+void NGLScene::initDeferred()
+{
+  std::cout << "\n\n\nWindow size during deferred init: " <<  m_win.height << " " << m_win.width;
+  //Note that we use GL_RGBA16F over GL_RGB16F as GPUs generally prefer 4-component 
+  //formats over 3-component formats due to byte alignment; some drivers may fail 
+  //to complete the framebuffer otherwise. 
+
+  glGenFramebuffers(1, &m_gBuffer);
+  glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
+
+  auto size = this->size();
+  int width = size.width();
+  int height = size.height();
+
+  //position color buffer
+  glGenTextures(1, &m_gBufferPosition);
+  glBindTexture(GL_TEXTURE_2D, m_gBufferPosition);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_gBufferPosition, 0);
+
+  // - normal color buffer
+  glGenTextures(1, &m_gBufferNormal);
+  glBindTexture(GL_TEXTURE_2D, m_gBufferNormal);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_gBufferNormal, 0);
+    
+  // - albedo buffer
+  glGenTextures(1, &m_gBufferAlbedo);
+  glBindTexture(GL_TEXTURE_2D, m_gBufferAlbedo);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_gBufferAlbedo, 0);
+
+  // - metallic roughness ao buffer
+  glGenTextures(1, &m_gBufferAORoughnessMetallic);
+  glBindTexture(GL_TEXTURE_2D, m_gBufferAORoughnessMetallic);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, m_gBufferAORoughnessMetallic, 0);
+  
+  //depth
+  glGenTextures(1, &m_gBufferDepth);
+  glBindTexture(GL_TEXTURE_2D, m_gBufferDepth);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_gBufferDepth, 0);
+
+  // - tell OpenGL which color attachments we'll use (of this framebuffer) for rendering 
+  unsigned int attachments[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_COLOR_ATTACHMENT3 };
+  glDrawBuffers(4, attachments);
+  glEnable(GL_DEPTH_TEST);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+  ngl::ShaderLib::use("DeferredPBR");
+  //ngl::ShaderLib::getUniformBlockIndex("")
+  ngl::ShaderLib::setUniform("gNormal",1);
+  ngl::ShaderLib::setUniform("gAlbedo",2);
+  ngl::ShaderLib::setUniform("gAORoughMet",3);
+  ngl::ShaderLib::setUniform("gDepth",4);
+}
+
+void NGLScene::updateDeferredSize()
+{
+  auto size = this->size();
+  int width = size.width();
+  int height = size.height();
+
+  glBindTexture(GL_TEXTURE_2D, m_gBufferPosition);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glBindTexture(GL_TEXTURE_2D, m_gBufferNormal);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glBindTexture(GL_TEXTURE_2D, m_gBufferAlbedo);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glBindTexture(GL_TEXTURE_2D, m_gBufferAORoughnessMetallic);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glBindTexture(GL_TEXTURE_2D, m_gBufferDepth);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+}
+
 void NGLScene::loadShaderDefaults()
 {
   ngl::ShaderLib::use("PBR");
@@ -173,15 +268,15 @@ void NGLScene::updateNumLights()
     
     std::cout << "\nSetting num of lights to " << numLights;
 
-    std::string shadersToEdit[] = {"pbrFrag"};
-    std::string programNames[] = {"PBR"};
+    std::string shadersToEdit[] = {"pbrFrag", "deferredPBRFrag"};
+    //std::string programNames[] = {"PBR"};
 
-    for(int i=0;i<1.;i++)
+    for(int i=0;i<2;i++)
     {
         if(ngl::ShaderLib::getShader(shadersToEdit[i])!=nullptr)
         {
           auto &_shader = shadersToEdit[i];
-          auto &_shaderProgram = programNames[i];
+          //auto &_shaderProgram = programNames[i];
           ngl::ShaderLib::resetEdits(_shader);
           ngl::ShaderLib::editShader(_shader,"@numLights",std::to_string(numLights));
           ngl::ShaderLib::compileShader(_shader);
@@ -201,16 +296,6 @@ void NGLScene::updateLightInfo()
         m_lightInfoArray[i].col = it.second->getColour();
         m_lightInfoArray[i].pos = it.second->transform.getPosition();
         m_lightInfoArray[i].intensity = it.second->getIntensity();
-
-        std::cout << fmt::format("\n{}\nCol: {} {} {}\nPos: {} {} {}\nInt: {}\n",
-                                  i,
-                                  m_lightInfoArray[i].col[0],
-                                  m_lightInfoArray[i].col[1],
-                                  m_lightInfoArray[i].col[2],
-                                  m_lightInfoArray[i].pos[0],
-                                  m_lightInfoArray[i].pos[1],
-                                  m_lightInfoArray[i].pos[2],
-                                  m_lightInfoArray[i].intensity);
         i++;
     }
     loadLightsToShader();
@@ -219,15 +304,21 @@ void NGLScene::updateLightInfo()
 
 void NGLScene::loadLightsToShader()
 {   
-    ngl::ShaderLib::linkProgramObject("PBR");
-    ngl::ShaderLib::use("PBR");
-    loadMatricesToShader();
-    //ngl::ShaderLib::printRegisteredUniforms("PBR");
-    for(int i=0;i<m_lightInfoArray.size();i++)    //Create shadow depth frame buffer
+    std::string shaderName = ngl::ShaderLib::getCurrentShaderName();
+    std::string lightShaders[] = {"PBR", "DeferredPBR"};
+
+    if( std::find(std::begin(lightShaders), std::end(lightShaders), shaderName) != std::end(lightShaders))
     {
-        ngl::ShaderLib::setUniform(fmt::format("lightColours[{0}]",i),m_lightInfoArray[i].col);
-        ngl::ShaderLib::setUniform(fmt::format("lightPositions[{0}]",i),m_lightInfoArray[i].pos);
-        ngl::ShaderLib::setUniform(fmt::format("lightInts[{0}]",i),m_lightInfoArray[i].intensity);
+      ngl::ShaderLib::linkProgramObject(shaderName);
+      ngl::ShaderLib::use(shaderName);
+      loadMatricesToShader();
+      //ngl::ShaderLib::printRegisteredUniforms("PBR");
+      for(int i=0;i<m_lightInfoArray.size();i++)    //Create shadow depth frame buffer
+      {
+          ngl::ShaderLib::setUniform(fmt::format("lightColours[{0}]",i),m_lightInfoArray[i].col);
+          ngl::ShaderLib::setUniform(fmt::format("lightPositions[{0}]",i),m_lightInfoArray[i].pos);
+          ngl::ShaderLib::setUniform(fmt::format("lightInts[{0}]",i),m_lightInfoArray[i].intensity);
+      }
     }
     
 }
@@ -280,6 +371,7 @@ void NGLScene::resizeGL( int _w, int _h )
   m_project=ngl::perspective( 45.0f, static_cast<float>( _w ) / _h, 0.05f, 350.0f );
   m_win.width  = static_cast<int>( _w * devicePixelRatio() );
   m_win.height = static_cast<int>( _h * devicePixelRatio() );
+  updateDeferredSize();
 }
 
 transform NGLScene::getViewProjection()
@@ -292,21 +384,12 @@ transform NGLScene::getViewProjection()
 
 void NGLScene::loadMatricesToShader()
 {
-  //  struct transform
-  //  {
-  //    ngl::Mat4 MVP;
-  //    ngl::Mat4 normalMatrix;
-  //    ngl::Mat4 M;
-  //  };
-  //  transform t;
-
-    //Utils::printMatrix(t.M);
     getViewProjection();
-    //auto matrix = m_project*m_v_trans*m_view*m_v_rot*m_v_scale;
 
     ngl::ShaderLib::setUniformBuffer("TransformVP",sizeof(transform),&m_VP.V.m_00);
     auto camPos = m_VP.V.inverse();
-    if(ngl::ShaderLib::getCurrentShaderName()=="PBR")
+    auto _name = ngl::ShaderLib::getCurrentShaderName();
+    if(_name=="PBR" || _name=="DeferredPBR")
     {
       //loadDirShadowMatrices();
       ngl::ShaderLib::setUniform( "camPos", camPos.m_30, camPos.m_31, camPos.m_32 );
@@ -316,27 +399,55 @@ void NGLScene::loadMatricesToShader()
 
 void NGLScene::paintGL()
 {
-    //glCullFace(GL_FRONT);
-    renderOmniShadowMaps();
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &m_mainFBO);
     //glCullFace(GL_BACK);
+    renderOmniShadowMaps();
+    //glCullFace(GL_FRONT);
 
-    glViewport(0,0,m_win.width,m_win.height);
+    renderDeferred();
+
+    glBindFramebuffer(GL_FRAMEBUFFER, m_mainFBO);
+}
+
+void NGLScene::renderForward()
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, m_mainFBO);
+  glViewport(0,0,m_win.width,m_win.height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-    // glEnable(GL_DEPTH_TEST);
     ngl::ShaderLib::use("PBR");
-    //glActiveTexture(GL_TEXTURE0);
-    //glBindTexture(GL_TEXTURE_2D, m_depthMap);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthCubeMap);
-    //loadMatricesToShader();
     SceneManager::draw("PBR");
+}
 
+void NGLScene::renderDeferred()
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
+  glViewport(0,0,m_win.width,m_win.height);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    SceneManager::draw("gBufferPBR");
 
-    // glActiveTexture(GL_TEXTURE0);
-    // glBindTexture(GL_TEXTURE_2D, m_depthMap);
-    // ngl::VAOPrimitives::draw("screenQuad");
+  glBindFramebuffer(GL_FRAMEBUFFER, m_mainFBO);
+    ngl::ShaderLib::use("DeferredPBR");
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_gBufferDepth);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, m_gBufferNormal);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, m_gBufferAlbedo);
+    glActiveTexture(GL_TEXTURE3);
+    glBindTexture(GL_TEXTURE_2D, m_gBufferAORoughnessMetallic);
+    glActiveTexture(GL_TEXTURE4);
+    glBindTexture(GL_TEXTURE_2D, m_gBufferDepth);
+
+    transform t = getViewProjection();
+    t.VP = t.VP.inverse();
+    ngl::ShaderLib::setUniformBuffer("InverseVP",sizeof(transform),&t.V.m_00);
+
+    ngl::VAOPrimitives::draw("screenQuad");
+
 
 }
 
@@ -387,6 +498,9 @@ void NGLScene::loadOmniShadowMatrices()
   ngl::ShaderLib::setUniform("lightPos",lightPos);
   ngl::ShaderLib::setUniform("far_plane",far);
   ngl::ShaderLib::use("PBR");
+  ngl::ShaderLib::setUniform("lightPos",lightPos);
+  ngl::ShaderLib::setUniform("far_plane", far);
+  ngl::ShaderLib::use("DeferredPBR");
   ngl::ShaderLib::setUniform("lightPos",lightPos);
   ngl::ShaderLib::setUniform("far_plane", far);
 
@@ -449,3 +563,27 @@ NGLScene::~NGLScene()
 //     update();
 // 	}
 // }
+
+void NGLScene::createScreenQuad()
+{
+  std::vector<GLfloat> quadVertices = {
+        // positions        // texture Coords
+        -1.0f,  -1.0f, 0.0f, 0.0f, 0.0f,
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+
+        1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+        -1.0f,  -1.0f, 0.0f, 0.0f, 0.0f,
+        1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+    };
+  std::unique_ptr<ngl::AbstractVAO> m_vao = ngl::SimpleVAO::create(GL_TRIANGLES);
+  auto data = ngl::AbstractVAO::VertexData(quadVertices.size()*sizeof(GLfloat),quadVertices[0]);
+  m_vao->bind();
+  m_vao->setData(data);
+  m_vao->setVertexAttributePointer(0,3,GL_FLOAT,sizeof(GLfloat)*5,0);
+  m_vao->setVertexAttributePointer(1,2,GL_FLOAT,sizeof(GLfloat)*5,3);
+  m_vao->setNumIndices(6);
+  m_vao->unbind();
+  std::cout << "\n\n\n\n simple vao quad: " << m_vao->numIndices();
+  ngl::VAOPrimitives::addToPrimitives("screenQuad",std::move(m_vao));
+}

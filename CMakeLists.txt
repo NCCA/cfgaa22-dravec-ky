@@ -55,8 +55,8 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
             ${PROJECT_SOURCE_DIR}/src/NGLObjectMenu.cpp 
             ${PROJECT_SOURCE_DIR}/include/Utils.h 
             ${PROJECT_SOURCE_DIR}/src/Utils.cpp 
-            ${PROJECT_SOURCE_DIR}/include/ScenePrimitive.h 
-            ${PROJECT_SOURCE_DIR}/src/ScenePrimitive.cpp 
+            ${PROJECT_SOURCE_DIR}/include/NGLSceneMenu.h 
+            ${PROJECT_SOURCE_DIR}/src/NGLSceneMenu.cpp 
             ${PROJECT_SOURCE_DIR}/include/SceneLight.h 
             ${PROJECT_SOURCE_DIR}/src/SceneLight.cpp 
 )

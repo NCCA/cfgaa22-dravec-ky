@@ -5,6 +5,7 @@
 #include "NGLScene.h"
 #include "NGLSceneTreeView.h"
 #include "NGLObjectMenu.h"
+#include "NGLSceneMenu.h"
 
 namespace Ui {
     class MainWindow;
@@ -44,6 +45,7 @@ private:
 		NGLScene *m_gl;
         NGLSceneTreeView *m_list;
         NGLObjectMenu *m_menu;
+        NGLSceneMenu *m_settings;
         void keyPressEvent(QKeyEvent * _event) override;
 };
 

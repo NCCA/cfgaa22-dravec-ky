@@ -14,10 +14,13 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), m_ui(new Ui::MainW
   m_gl = new  NGLScene(this);
   m_list = new NGLSceneTreeView(this);
   m_menu = new NGLObjectMenu(this);
+  m_settings = new NGLSceneMenu(this);
+  
 
   SceneManager::initialize(m_gl, m_list, m_menu);
 
   m_ui->s_mainWindowSplitter->insertWidget(0, m_gl);
+  m_ui->s_mainWindowSplitter->insertWidget(0, m_settings);
   m_ui->s_menuSplitter->insertWidget(0, m_menu);
   m_ui->s_menuSplitter->insertWidget(0, m_list);
 

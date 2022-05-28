@@ -5,7 +5,6 @@
 #include <QGridLayout>
 
 #include "NGLObjectMenu.h"
-#include "ScenePrimitive.h"
 #include "SceneLight.h"
 
 #include <QFileDialog>

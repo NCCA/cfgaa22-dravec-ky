@@ -4,7 +4,6 @@
 #include <ngl/AbstractMesh.h>
 #include <ngl/AbstractVAO.h>
 #include "SceneObject.h"
-#include "ScenePrimitive.h"
 #include <ngl/Obj.h>
 
 struct Material
@@ -31,7 +30,8 @@ class SceneMesh : public SceneObject
     SceneMesh(const std::string &_primname);
     //bool load(const std::string &_fname,CalcBB _calcBB=CalcBB::True) noexcept;
     void draw(const std::string &_shaderName = "PBR") override;
-    void setPBR();
+    void loadMaterialToShader();
+    void loadTransformToShader();
     void setWireframe();
     Material m_material;
      ~SceneMesh();

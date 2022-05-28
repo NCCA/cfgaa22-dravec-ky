@@ -3,7 +3,7 @@
 layout (location =0) out vec4 FragColour;
 
 in vec2 TexCoords;
-in vec3 WorldPos;
+in vec4 WorldPos;
 in vec3 Normal;
 in vec4 FragPosLightSpace;
 
@@ -129,27 +129,30 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 
 void main()
 {		
+
+    vec3 WorldPos3 = WorldPos.rgb;
+
     vec3 N = Normal;
-    vec3 V = normalize(camPos - WorldPos);
+    vec3 V = normalize(camPos - WorldPos3);
 
     //surface reflection at zero incidence
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
+
+    
     
     //Direct lighting
     vec3 Lo = vec3(0.0);
     for(int i = 0; i < @numLights; ++i)
     {
-        vec3 L = normalize(lightPositions[i] - WorldPos);
+        vec3 L = normalize(lightPositions[i] - WorldPos3);
         vec3 H = normalize(V + L);
 
         float temp = max(dot(L,N),0.0);
 
-        
-
-        float distance = length(lightPositions[i] - WorldPos);
-        float atten = (1.0 / (distance * distance))*lightInts[i];
-        vec3 radiance = min(lightColours[i] * atten,1.0);
+        float distance = length(lightPositions[i] - WorldPos3);
+        float atten = (1.0 / (distance * distance));
+        vec3 radiance = lightColours[i] * atten *lightInts[i];
 
         //FragColour = vec4(radiance,1.0);
 
@@ -173,7 +176,7 @@ void main()
         float NdotL = max(dot(N,L), 0.0);
         Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }
-    float shadow = ShadowCalculationOmni(WorldPos);
+    float shadow = ShadowCalculationOmni(WorldPos3);
     vec3 ambient = vec3(0.03) * albedo * ao;
     vec3 color = ambient + Lo*(1-shadow);
 

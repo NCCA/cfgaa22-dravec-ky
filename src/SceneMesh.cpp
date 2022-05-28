@@ -51,17 +51,20 @@ SceneMesh::SceneMesh(const std::string &_primname)
     draw();
 }
 
-void SceneMesh::setPBR()
+void SceneMesh::loadMaterialToShader()
 {
-    ngl::ShaderLib::use("PBR");
-    SceneManager::loadCameraMatrixToCurrentShader();
-    ngl::ShaderLib::use("PBR");
     ngl::ShaderLib::setUniform("albedo",    m_material.albedo.m_r,
                                             m_material.albedo.m_g,
                                             m_material.albedo.m_b);
     ngl::ShaderLib::setUniform("metallic",  m_material.metallic);
     ngl::ShaderLib::setUniform("roughness", m_material.roughness);
     ngl::ShaderLib::setUniform("ao",        m_material.ao);
+}
+
+void SceneMesh::loadTransformToShader()
+{
+    auto matrix = transform.getMatrix();
+    ngl::ShaderLib::setUniformMatrix4fv("inTransform",&matrix.m_00);
 }
 
 void SceneMesh::setWireframe()
@@ -89,11 +92,12 @@ void SceneMesh::draw(const std::string &_shaderName)
     if(VAO_loaded)
     {   
         m_vao->bind();
-        auto matrix = transform.getMatrix();
-        ngl::ShaderLib::setUniformMatrix4fv("inTransform",&matrix.m_00);
+        loadTransformToShader();
+        SceneManager::loadCameraMatrixToCurrentShader();
+
         if(_shaderName=="PBR")
         {
-            setPBR();
+            loadMaterialToShader();
             if(isSelected)
             {
                 setWireframe();
@@ -102,6 +106,12 @@ void SceneMesh::draw(const std::string &_shaderName)
                 ngl::ShaderLib::use("PBR");
             }
         }
+
+        if(_shaderName == "gBufferPBR")
+        {
+            loadMaterialToShader();
+        }
+
         m_vao->draw();
         m_vao->unbind();
     }
