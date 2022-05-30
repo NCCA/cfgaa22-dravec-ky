@@ -20,5 +20,6 @@ class SceneLight : public SceneObject
         float m_intensity = 1.0f;
         ngl::Vec3 m_colour = ngl::Vec3(1.0f,1.0f,1.0f);
         int m_id = -1;
+        int m_info_id;
 };
 #endif

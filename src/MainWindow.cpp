@@ -23,6 +23,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), m_ui(new Ui::MainW
   m_ui->s_mainWindowSplitter->insertWidget(0, m_settings);
   m_ui->s_menuSplitter->insertWidget(0, m_menu);
   m_ui->s_menuSplitter->insertWidget(0, m_list);
+  //this->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
 
 
   //m_ui->s_listGridLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
@@ -49,7 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), m_ui(new Ui::MainW
 
   connect(m_ui->actionPointLight, &QAction::triggered, this, [this]{ SceneManager::addLight(); });
   
-  
+  connect(m_gl,&QOpenGLWidget::frameSwapped, m_settings->m_fpsCounter, [this]{ m_settings->addToCounter();});
 
   //SceneManager::addObject("mesh",SceneObject::ObjectType::MESH, "path");
   
@@ -102,7 +103,7 @@ void MainWindow::loadObject(const std::string &_value)
 
 void MainWindow::keyPressEvent(QKeyEvent * _event)
 {
-  //std::cout << "pressed";
+  std::cout << "pressed";
   if(_event->key() == Qt::Key_F)
   {
     m_gl->setViewToSelected();

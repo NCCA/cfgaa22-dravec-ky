@@ -4,16 +4,14 @@ layout (location =0) out vec4 FragColour;
 
 in vec2 TexCoords;
 
-uniform sampler2D gPosition;
-uniform sampler2D gNormal;
-uniform sampler2D gAlbedo;
-uniform sampler2D gAORoughMet;
-uniform sampler2D gDepth;
-
-uniform vec3 camPos;
-
 //uniform sampler2D shadowMap;
 uniform samplerCube shadowCubeMap;
+
+uniform sampler2D gAlbedo;
+uniform sampler2D gAORoughMet;
+uniform sampler2D gNormal;
+uniform sampler2D gEmissive;
+uniform sampler2D gDepth;
 
 uniform float far_plane;
 uniform vec3 lightPos;
@@ -27,9 +25,9 @@ uniform float exposure;
 
 layout (std140) uniform InverseVP
 {
-    mat4 V;
-    mat4 P;
-    mat4 VP;
+    mat4 invV;
+    mat4 invP;
+    mat4 invVP;
 } t;
 
 const float PI = 3.14159265359;
@@ -47,7 +45,7 @@ float ShadowCalculationOmni(vec3 fragPos)
     float currentDepth = length(fragToLight);
     // now test for shadows
     float bias = 0.05; 
-    float shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;
+    float shadow = currentDepth -  bias > closestDepth ? 1-(currentDepth-closestDepth)/far_plane : 0.0;
     return shadow;
 
     
@@ -127,30 +125,41 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-vec3 calculateWorldPos(vec3 w)
+vec3 calculateWorldPos()
 {
     //https://research.ncl.ac.uk/game/mastersdegree/graphicsforgames/deferredrendering/Tutorial%2015%20-%20Deferred%20Rendering.pdf
     //page 18
-    return vec3(w);
+    vec3 pos = vec3(TexCoords.x, TexCoords.y,0);
+    pos.z = texture(gDepth, TexCoords).r;
+    vec4 clip = t.invVP * vec4(pos * 2.0 - 1.0,1.0);
+    pos = clip.xyz / clip.w;
+    return pos;
 }
 
 void main()
 {		
-    vec3 WorldPos = texture(gPosition, TexCoords).rgb;
+    vec3 camPos = vec3(t.invV[3][0],t.invV[3][1],t.invV[3][2]);
+
+    vec3 WorldPos = calculateWorldPos();
     vec3 Normal = texture(gNormal, TexCoords).rgb;
     vec3 albedo = texture(gAlbedo, TexCoords).rgb;
     float metallic = texture(gAORoughMet, TexCoords).b;
     float roughness = texture(gAORoughMet, TexCoords).g;
     float ao = texture(gAORoughMet, TexCoords).r;
+
     float depth = texture(gDepth, TexCoords).r;
+    vec3 emissive = texture(gEmissive, TexCoords).rgb;
 
     vec3 N = Normal;
     vec3 V = normalize(camPos - WorldPos);
 
+
     //surface reflection at zero incidence
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
-    
+
+    float shadow = ShadowCalculationOmni(WorldPos);
+
     //Direct lighting
     vec3 Lo = vec3(0.0);
     for(int i = 0; i < @numLights; ++i)
@@ -163,7 +172,7 @@ void main()
         float distance = length(lightPositions[i] - WorldPos);
         float atten = (1.0 / (distance * distance));
         vec3 radiance = lightColours[i] * atten *lightInts[i];
-        Lo+=radiance;
+        //Lo+=radiance;
 
         //FragColour = vec4(radiance,1.0);
 
@@ -185,15 +194,15 @@ void main()
         kD *= 1.0 - metallic;
 
         float NdotL = max(dot(N,L), 0.0);
-        //Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+        Lo += ((kD * albedo / PI + specular) * radiance * NdotL)*min(1-shadow+i,1);
     }
-    float shadow = ShadowCalculationOmni(WorldPos);
-    vec3 ambient = vec3(0.03) * albedo * ao;
-    vec3 color = ambient + Lo;
+    
+    vec3 ambient = vec3(0.03) * albedo * ao + emissive;
+    vec3 color = ambient + Lo;// + emissive;
 
     //tonemapping HDR color using Reinhard operator
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2));
 
-    FragColour = vec4(vec3(depth), 1.0);  
+     FragColour = vec4(color, 1.0);  
 }

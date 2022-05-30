@@ -73,13 +73,29 @@ public :
   void initDeferred();
   void updateDeferredSize();
   void renderDeferred();
-
   void renderForward();
+
+  void renderTexture(const GLuint &tex_id);
+
+  //ASSETS
+  void initDefaultAssets();
+  void loadScene1();
+  void loadScene2() {};
+  void loadScene3() {};
 
   /// @brief function for loading shaders onto the ngl::ShaderLib
   void createShaderProgram(const std::string &_name, const std::string &_vertPath, const std::string &_fragPath, const std::string &_geoPath = "");
   /// @brief unordered map of all scene lights
+
   std::unordered_map<int,std::shared_ptr<SceneLight>> m_lights;
+
+  const unsigned int m_SHADOW_WIDTH = 1024, m_SHADOW_HEIGHT = 1024;
+  
+  //DEFAULT PBR TEXTURES
+  GLuint m_DefaultAlbedo;
+  GLuint m_DefaultAORoughMet;
+  GLuint m_DefaultNormal;
+  GLuint m_DefaultEmissive;
 
 private:
 	/// @brief m_wireframe mode
@@ -97,7 +113,7 @@ private:
 	std::unique_ptr<ngl::Text> m_text;
 
   transform m_VP;
-
+  
 protected:
   /// @brief  The following methods must be implimented in the sub class
   /// this is called when the window is created
@@ -128,7 +144,6 @@ protected:
   ngl::Mat4 m_project;
 
 private :
-
   //MOUSE EVENTS
   void mouseMoveEvent (QMouseEvent * _event   ) override;
   void mousePressEvent ( QMouseEvent *_event  ) override;
@@ -142,23 +157,25 @@ private :
   //SHADOW PASS
   GLint m_mainFBO;
 
-  const unsigned int m_SHADOW_WIDTH = 1024, m_SHADOW_HEIGHT = 1024;
+  
   GLuint m_depthMapFBO;
   GLuint m_depthMap;
 
   GLuint m_depthCubeMapFBO;
   GLuint m_depthCubeMap;
 
+
   std::shared_ptr<SceneObject> m_omniLight;
 	std::vector<LightInfo> m_lightInfoArray;
 
   //DEFERRED RENDERING
   GLuint m_gBuffer;
-  GLuint m_gBufferPosition;
+  //GLuint m_gBufferPosition;
   GLuint m_gBufferNormal;
   GLuint m_gBufferAlbedo;
   GLuint m_gBufferAORoughnessMetallic;
   GLuint m_gBufferDepth;
+  GLuint m_gBufferEmissive;
 
 
   //TEMP VARS

@@ -7,15 +7,26 @@ in vec4 WorldPos;
 in vec3 Normal;
 in vec4 FragPosLightSpace;
 
+in mat3 TBN;
+
 uniform vec3 camPos;
 
-uniform vec3 albedo;
-uniform float metallic;
-uniform float roughness;
-uniform float ao;
+uniform samplerCube shadowCubeMap;
+uniform sampler2D tex_Albedo;
+uniform sampler2D tex_AORoughMet;
+uniform sampler2D tex_Normal;
+uniform sampler2D tex_Emissive;
+
+uniform vec3 inAlbedo;
+uniform float inMetallic;
+uniform float inRoughness;
+uniform float inAO;
+uniform float inEmissive;
+
+uniform int useNormalMap;
 
 //uniform sampler2D shadowMap;
-uniform samplerCube shadowCubeMap;
+
 
 uniform float far_plane;
 uniform vec3 lightPos;
@@ -27,14 +38,6 @@ uniform float lightInts[@numLights];
 uniform float exposure;
 
 const float PI = 3.14159265359;
-/*
-0 - PBR
-1 - normals;
-2 - depth;
-3 - diffuse?
-
-*/
-uniform int type;
 
 //https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
 float ShadowCalculationOmni(vec3 fragPos)
@@ -129,10 +132,21 @@ vec3 fresnelSchlick(float cosTheta, vec3 F0)
 
 void main()
 {		
+    //vec3 Normal = Normal;
+    vec3 albedo = texture(tex_Albedo, TexCoords).rgb;
+    albedo = albedo / (albedo + vec3(1.0));
+    albedo = pow(albedo, vec3(1.0/2.2)) * inAlbedo;
+    float metallic = texture(tex_AORoughMet, TexCoords).b * inMetallic + max(inMetallic-1,0);
+    float roughness = texture(tex_AORoughMet, TexCoords).g*inRoughness + max(inRoughness-1,0);
+    float ao = texture(tex_AORoughMet, TexCoords).r * inAO + max(inAO-1,0);
+    vec3 emissive = texture(tex_Emissive, TexCoords).rgb*inEmissive + max(inEmissive-1,0);
 
     vec3 WorldPos3 = WorldPos.rgb;
-
-    vec3 N = Normal;
+    vec3 N;
+    if(useNormalMap==1)
+        N = normalize(TBN*(texture(tex_Normal, TexCoords).rgb*2.0-1.0));
+    else
+        N = Normal;
     vec3 V = normalize(camPos - WorldPos3);
 
     //surface reflection at zero incidence
@@ -140,7 +154,8 @@ void main()
     F0 = mix(F0, albedo, metallic);
 
     
-    
+    float shadow = ShadowCalculationOmni(WorldPos3);
+
     //Direct lighting
     vec3 Lo = vec3(0.0);
     for(int i = 0; i < @numLights; ++i)
@@ -174,12 +189,11 @@ void main()
         kD *= 1.0 - metallic;
 
         float NdotL = max(dot(N,L), 0.0);
-        Lo += (kD * albedo / PI + specular) * radiance * NdotL;
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL*min(1-shadow+i,1);
     }
-    float shadow = ShadowCalculationOmni(WorldPos3);
+    
     vec3 ambient = vec3(0.03) * albedo * ao;
-    vec3 color = ambient + Lo*(1-shadow);
-
+    vec3 color = ambient + Lo + emissive;
     //tonemapping HDR color using Reinhard operator
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2));

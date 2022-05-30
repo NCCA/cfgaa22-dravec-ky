@@ -24,7 +24,7 @@ class SceneObject
     //OpenGL
     virtual void drawInherited(const std::string &_shaderName = "PBR");
     virtual void draw(const std::string &_shaderName = "PBR") {};
-
+    virtual void loadTexture(int _index, const std::string &_path) {};
     std::string getName() {return m_name;};
     void setName(const std::string &_name) {m_name = _name;};
 

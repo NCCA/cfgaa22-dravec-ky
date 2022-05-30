@@ -28,7 +28,7 @@ void SceneLight::draw(const std::string &_shaderName)
         if(isSelected) ngl::ShaderLib::setUniform("inCol",ngl::Vec4(m_colour, 0.5));
         else ngl::ShaderLib::setUniform("inCol",ngl::Vec4(m_colour, 0.2));
 
-        ngl::VAOPrimitives::draw("sphere");
+        ngl::VAOPrimitives::draw("lightSphere");
         glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
         ngl::ShaderLib::use("PBR");
     }

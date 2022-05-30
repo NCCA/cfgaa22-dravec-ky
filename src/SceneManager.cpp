@@ -35,6 +35,22 @@ bool SceneManager::draw(const std::string &_shaderName)
     return true;
 }
 
+GLuint SceneManager::getDefaultTexture(int _i)
+{
+    switch(_i)
+    {
+        case 0:
+            return m_scene->m_DefaultAlbedo;
+        case 1:
+            return m_scene->m_DefaultAORoughMet;
+        case 2:
+            return m_scene->m_DefaultNormal;
+        case 3:
+            return m_scene->m_DefaultEmissive;
+    }
+    return m_scene->m_DefaultAlbedo;
+}
+
 std::shared_ptr<SceneObject> SceneManager::addObject(const std::string &_name, SceneObject::ObjectType _type, const std::string &_path)
 {   
     static int light_unique_id = 0;
@@ -45,8 +61,12 @@ std::shared_ptr<SceneObject> SceneManager::addObject(const std::string &_name, S
         {
             std::cout << "\ntrying to create mesh";
             auto mesh = std::make_shared<SceneMesh>(_name,_path);
+
+            mesh->m_material.textures[0] = m_scene->m_DefaultAlbedo;
+            mesh->m_material.textures[1] = m_scene->m_DefaultAORoughMet;
+            mesh->m_material.textures[2] = m_scene->m_DefaultNormal;
+
             obj = std::move(mesh);
-            
             update();
             break;
         }
@@ -54,6 +74,11 @@ std::shared_ptr<SceneObject> SceneManager::addObject(const std::string &_name, S
         {
             std::cout << "\nDetected primitive " << _path;
             auto prim = std::make_shared<SceneMesh>(_path);
+
+            prim->m_material.textures[0] = m_scene->m_DefaultAlbedo;
+            prim->m_material.textures[1] = m_scene->m_DefaultAORoughMet;
+            prim->m_material.textures[2] = m_scene->m_DefaultNormal;
+
             obj = std::move(prim);
             
             break;
@@ -67,7 +92,7 @@ std::shared_ptr<SceneObject> SceneManager::addObject(const std::string &_name, S
 
             std::cout << "\nLights: " << m_scene->m_lights.size();
             obj = std::move(light);
-            obj->setName(_name);
+            obj->setName(_name+std::to_string(light_unique_id));
             light_unique_id++;
             break;
         }

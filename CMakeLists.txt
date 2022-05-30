@@ -59,6 +59,10 @@ target_sources(${TargetName} PRIVATE ${PROJECT_SOURCE_DIR}/src/main.cpp
             ${PROJECT_SOURCE_DIR}/src/NGLSceneMenu.cpp 
             ${PROJECT_SOURCE_DIR}/include/SceneLight.h 
             ${PROJECT_SOURCE_DIR}/src/SceneLight.cpp 
+            ${PROJECT_SOURCE_DIR}/include/RenderParams.h
+            ${PROJECT_SOURCE_DIR}/src/NGLSceneRendering.cpp 
+            ${PROJECT_SOURCE_DIR}/src/NGLSceneShadowMapping.cpp 
+            ${PROJECT_SOURCE_DIR}/src/NGLSceneAssets.cpp 
 )
 
 if ( Qt6_FOUND )
@@ -74,5 +78,11 @@ add_custom_target(CopyShadersAndfonts ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_CURRENT_SOURCE_DIR}/fonts
     $<TARGET_FILE_DIR:${TargetName}>/fonts
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/models
+    $<TARGET_FILE_DIR:${TargetName}>/models
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_CURRENT_SOURCE_DIR}/textures
+    $<TARGET_FILE_DIR:${TargetName}>/textures
 
 ) 

@@ -38,7 +38,7 @@ class SceneManager
     static void loadCameraMatrixToCurrentShader();
     static void updateLightInfo() {m_scene->updateLightInfo();};
     static transform getViewProjection() {return m_scene->getViewProjection();};
-
+    static GLuint getDefaultTexture(int _index);
   private:
     static NGLScene * m_scene;
     static NGLSceneTreeView * m_list;

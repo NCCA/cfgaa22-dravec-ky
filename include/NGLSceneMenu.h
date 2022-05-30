@@ -7,6 +7,7 @@
 #include <QLayout>
 #include <QBoxLayout>
 #include <QPushButton>
+#include <QLabel>
 
 //base class definition from https://doc.qt.io/archives/4.6/model-view-creating-models.html
 class NGLSceneMenu : public QGroupBox
@@ -15,6 +16,8 @@ class NGLSceneMenu : public QGroupBox
   public:
     NGLSceneMenu(QWidget *parent = nullptr);
     ~NGLSceneMenu() {};
+    QLabel * m_fpsCounter = new QLabel();
+    void addToCounter();
   public slots:
 
   private:

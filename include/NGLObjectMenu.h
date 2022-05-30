@@ -7,6 +7,8 @@
 #include <QLayout>
 #include <QBoxLayout>
 #include <QPushButton>
+#include <QToolButton>
+#include <QSplitter>
 
 //base class definition from https://doc.qt.io/archives/4.6/model-view-creating-models.html
 class NGLObjectMenu : public QGroupBox
@@ -21,14 +23,17 @@ class NGLObjectMenu : public QGroupBox
     void setRotate(int _i, double _val);
     void setScale(int _i, double _val);
     ngl::Vec3 getColourMenu(QWidget *w);
+    
   public slots:
 
   private:
     void setupTransformMenu();
     void setupMaterialMenu();
     void setupLightMenu();
+    std::string loadImage(QAbstractButton *w);
 
     QBoxLayout * m_mainLayout = new QBoxLayout(QBoxLayout::Direction::TopToBottom);
+    QSplitter * m_mainSplitter = new QSplitter();
 
     QGroupBox * m_transformBox = new QGroupBox;
     QDoubleSpinBox * m_translateX = new QDoubleSpinBox;
@@ -51,14 +56,28 @@ class NGLObjectMenu : public QGroupBox
     ngl::Vec3 m_l_col;
 
     QGroupBox * m_materialBox = new QGroupBox;
+    QToolButton * m_texAlbedo = new QToolButton();
+    QPushButton * m_texORM = new QPushButton("   ");
+    QPushButton * m_texNormal = new QPushButton("   ");
+    QPushButton * m_texEmissive = new QPushButton("   ");
+    std::string m_path_albedo = "";
+    std::string m_path_orm = "";
+    std::string m_path_normal = "";
+    std::string m_path_emissive = "";
+
+    std::vector<QPushButton*> m_textures;
+    std::vector<std::string> m_texture_paths;
+    
     QPushButton * m_Albedo = new QPushButton("   ");
     QDoubleSpinBox * m_Roughness = new QDoubleSpinBox;
     QDoubleSpinBox * m_Metallic = new QDoubleSpinBox;
     QDoubleSpinBox * m_AO = new QDoubleSpinBox;
+    QDoubleSpinBox * m_Emissive = new QDoubleSpinBox;
     ngl::Vec3 m_m_albedo;
     float m_m_rough;
     float m_m_metallic;
     float m_m_ao;
+    float m_m_emissive;
 
     std::shared_ptr<SceneObject> m_curObject;
 
