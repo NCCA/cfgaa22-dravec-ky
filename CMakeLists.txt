@@ -11,7 +11,7 @@ endif()
 # Name of the project
 project(QtNGLBuild)
 # This is the name of the Exe change this and it will change everywhere
-set(TargetName QtNGL)
+set(TargetName MyOpenGL)
 # This will include the file NGLConfig.cmake, you need to add the location to this either using
 # -DCMAKE_PREFIX_PATH=~/NGL or as a system environment variable. 
 find_package(NGL CONFIG REQUIRED)
