@@ -3,7 +3,7 @@
 ### Computing 2022 Open-GL Renderer**
 My final assignment is a basic Open-GL renderer. Currently this program supports or implements the following features:
 
-<img src="./images/main.png" width=500>
+<img align="center" src="./images/main.png" width=900 >
 
 - Forward & Deferred Rendering
 - Multiple Light PBR shading
@@ -42,12 +42,13 @@ Learning QT mostly came from reading their extensive [documentation](https://doc
 
 ##### Rendering
 This renderer supports both deferred and forward rendering - initially I wanted to explore some Forward+/other combinations of both, but due to the lack of time I settled on just making both and testing out how they perform on same scenes. Deferred rendering took a while to implement, but after much trial and error I managed to get both of them provide the same results. For testing I have created functions for quickly switching between the textures of the GBuffer, the deferred and the forward renderer. Subsequently I added some other options for rendering out shadow maps and wireframe, because I thought they looked interesting.
-
-<img src="./images/preview_albedo.png" width=100>
-<img src="./images/preview_orm.png" width=100>
-<img src="./images/preview_normal.png" width=100>
-<img src="./images/preview_shadow.png" width=100>
-<img src="./images/preview_full.png" width=100>
+<p align="middle">
+<img src="./images/preview_albedo.png" width=300>
+<img src="./images/preview_orm.png" width=300>
+<img src="./images/preview_normal.png" width=300>
+<img src="./images/preview_shadow.png" width=300>
+<img src="./images/preview_full.png" width=300>
+</p>
 
 ##### Multiple Point Lights
 Using one of the NGL examples I created support for loading in multiple point lights to the shader to provide more realistic looking lighting calculations. Same as in the examples, this was achieved by loading in arrays of light information, and resizing those arrays + recompiling the shader every time the number of lights changes.
@@ -55,7 +56,7 @@ Using one of the NGL examples I created support for loading in multiple point li
 ##### PBR shading
 Using the previously mentioned [LearnOpenGL Tutorials](https://learnopengl.com/PBR/Theory), I implemented a basic PBR shading model. It supports loading in albedo, occlusion/roughness/metallic, normal and emissive textures, with additional multiplier parameters for each one. Unfortunately, I didn't have time to completely finish it and include things like [Diffuse Irradiance](https://learnopengl.com/PBR/IBL/Diffuse-irradiance).
 
-<img src="./images/pbr.png" width=300>
+<img src="./images/pbr.png" width=600>
 
 ##### Shadow Mapping
 After initially testing out shadow-mapping using a directional light and a simple 2D texture, I proceeded to implement point light shadow-mapping using cubemaps and geometry shaders to project the scene onto every side of the cube in a single shader pass. My next goal would be to turn this output cubemap intoan array of atleast 4 point lights - my renderer currently only supports one shadow caster, which is always the last light loaded into the scene. I did have time to implement some optimizations, like Percentage Closer Filtering and front culling to remove some of the more apparent shadow artifacts.
