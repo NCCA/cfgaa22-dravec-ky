@@ -22,7 +22,7 @@ void NGLScene::initDirShadowMaps()
     glGenTextures(1, &m_depthMap);
     glBindTexture(GL_TEXTURE_2D, m_depthMap);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
-                m_SHADOW_WIDTH, m_SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+                m_params.SHADOW_WIDTH, m_params.SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
@@ -40,6 +40,13 @@ void NGLScene::initDirShadowMaps()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);  
 }
 
+void NGLScene::updateDirShadowSize()
+{
+  glBindTexture(GL_TEXTURE_2D, m_depthMap);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 
+                m_params.SHADOW_WIDTH, m_params.SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+}
+
 void NGLScene::initOmniShadowMaps()
 {
   glGenFramebuffers(1, &m_depthMapFBO);
@@ -48,7 +55,7 @@ void NGLScene::initOmniShadowMaps()
 
   for (unsigned int i = 0; i < 6; ++i)
         glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, 
-                     m_SHADOW_WIDTH, m_SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+                     m_params.SHADOW_WIDTH, m_params.SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   
@@ -63,6 +70,14 @@ void NGLScene::initOmniShadowMaps()
   glReadBuffer(GL_NONE);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);  
 
+}
+
+void NGLScene::updateOmniShadowSize()
+{
+  glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthCubeMap);
+  for (unsigned int i = 0; i < 6; ++i)
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, 
+                     m_params.SHADOW_WIDTH, m_params.SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 }
 
 
@@ -86,7 +101,7 @@ void NGLScene::loadOmniShadowMatrices()
 
   ngl::Vec3 lightPos = m_lightInfoArray[0].pos;
 
-  float aspect = (float)m_SHADOW_WIDTH/(float)m_SHADOW_HEIGHT;
+  float aspect = (float)m_params.SHADOW_WIDTH / (float)m_params.SHADOW_HEIGHT;
   float near = 1.0f;
   float far = 25.0f;
   ngl::Mat4 shadowProj = ngl::perspective(90.0f, aspect, near, far); 
@@ -126,7 +141,7 @@ void NGLScene::renderDirShadowMaps()
     GLint prev_fbo;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prev_fbo);
 
-    glViewport(0, 0, m_SHADOW_WIDTH, m_SHADOW_HEIGHT);
+    glViewport(0, 0, m_params.SHADOW_WIDTH, m_params.SHADOW_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, m_depthMapFBO);
       glClear(GL_DEPTH_BUFFER_BIT);
       glEnable(GL_DEPTH_TEST);
@@ -139,17 +154,20 @@ void NGLScene::renderDirShadowMaps()
 
 void NGLScene::renderOmniShadowMaps()
 {
+    
     GLint prev_fbo;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &prev_fbo);
-
-    glViewport(0, 0, m_SHADOW_WIDTH, m_SHADOW_HEIGHT);
+    
+    glViewport(0, 0, m_params.SHADOW_WIDTH, m_params.SHADOW_HEIGHT);
     glBindFramebuffer(GL_FRAMEBUFFER, m_depthMapFBO);
       glClear(GL_DEPTH_BUFFER_BIT);
       glEnable(GL_DEPTH_TEST);
-      //glActiveTexture(GL_TEXTURE0);
-      //glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthCubeMap);
+      glCullFace(GL_FRONT);
+      glActiveTexture(GL_TEXTURE0);
+      glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthCubeMap);
       loadOmniShadowMatrices();
       SceneManager::draw("shadowOmniMap");
 
     glBindFramebuffer(GL_FRAMEBUFFER, prev_fbo);
+    glCullFace(GL_BACK);
 }

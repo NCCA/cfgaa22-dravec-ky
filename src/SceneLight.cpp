@@ -13,8 +13,11 @@ SceneLight::SceneLight(int _id)
 
 void SceneLight::draw(const std::string &_shaderName)
 {
-    if(_shaderName == "PBR")
+    if(_shaderName == "PBR" || _shaderName == "Unlit")
     {
+        GLint prevMode;
+        glGetIntegerv(GL_POLYGON_MODE, &prevMode);
+
         glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
         transform.setScale(0.5,0.5,0.5);
         auto matrix = transform.getMatrix();
@@ -29,8 +32,8 @@ void SceneLight::draw(const std::string &_shaderName)
         else ngl::ShaderLib::setUniform("inCol",ngl::Vec4(m_colour, 0.2));
 
         ngl::VAOPrimitives::draw("lightSphere");
-        glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-        ngl::ShaderLib::use("PBR");
+        glPolygonMode( GL_FRONT_AND_BACK, prevMode );
+        ngl::ShaderLib::use(_shaderName);
     }
     
 }

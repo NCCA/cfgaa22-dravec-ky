@@ -8,19 +8,6 @@
 #include <QImage>
 
 
-struct Material
-{
-  std::vector<GLuint> textures;
-  std::vector<std::string> texture_paths;
-  std::vector<QImage> texture_icons;
-  
-  ngl::Vec3 albedo = ngl::Vec3(1.0f, 1.0f, 1.0f);
-  float metallic = 1.0f;
-  float roughness = 1.0f;
-  float ao = 1.0f;
-  float emissive = 1.0f;
-};
-
 class MeshInfo: public ngl::Obj
 {
   public:
@@ -40,6 +27,9 @@ class SceneMesh : public SceneObject
     void loadMaterialToShader();
     void loadTransformToShader();
     void setWireframe();
+
+     void setMaterialInfo(const Material &_mat) override ;
+     Material getMaterial(){return m_material;};
 
     /// @brief Loads texture for the material
     /// 0 - Albedo

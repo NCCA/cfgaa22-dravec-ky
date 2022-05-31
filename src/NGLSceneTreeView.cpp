@@ -101,6 +101,12 @@ bool NGLSceneTreeView::removeSelected()
     return false;
 }
 
+bool NGLSceneTreeView::removeChildren(const QModelIndex &_idx)
+{
+    m_treeModel->removeSceneObjectChildren(_idx);
+    return false;
+}
+
 std::shared_ptr<SceneObject> NGLSceneTreeView::getSelectedObject()
 {
     auto model = this->selectionModel();

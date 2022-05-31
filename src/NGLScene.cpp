@@ -22,6 +22,8 @@ NGLScene::NGLScene( QWidget *_parent ) : QOpenGLWidget( _parent )
 	m_wireframe=false;
 	m_rotation=0.0;
 	m_scale=1.0;
+
+
 }
 
 void NGLScene::initializeGL()
@@ -38,7 +40,7 @@ void NGLScene::initializeGL()
 
   m_project=ngl::perspective(45,float(1024/720),0.1f,300.0f);
 
-  loadScene1();
+  loadSceneCornell();
 
   //std::shared_ptr<SceneObject> obj;
   // for(int i=0;i<10;i++)
@@ -48,13 +50,12 @@ void NGLScene::initializeGL()
   //   SceneManager::update();
   // }
 
-
-
   m_text=std::make_unique<ngl::Text>("fonts/Arial.ttf",18);
   m_text->setScreenSize(this->size().width(),this->size().height());
   m_text->setColour(1.0,1.0,1.0);
 
   initOmniShadowMaps();
+  //initDirShadowMaps();
   updateLightInfo();
 
   //BASE
@@ -79,8 +80,7 @@ void NGLScene::initializeGL()
   connect(fpsTimer, &QTimer::timeout, this, [this]{update();});
   fpsTimer->start(1000/120);
 
-  
-
+  SceneManager::setRenderFunction(&NGLScene::renderForward);
 
 }
 void NGLScene::updateNumLights()
@@ -130,15 +130,14 @@ void NGLScene::updateLightInfo()
 }
 
 
-void NGLScene::loadLightsToShader()
+void NGLScene::loadLightsToShader(const std::string &_shaderName)
 {   
-    std::string shaderName = ngl::ShaderLib::getCurrentShaderName();
     std::string lightShaders[] = {"PBR", "DeferredPBR"};
 
-    if( std::find(std::begin(lightShaders), std::end(lightShaders), shaderName) != std::end(lightShaders))
+    if( std::find(std::begin(lightShaders), std::end(lightShaders), _shaderName) != std::end(lightShaders))
     {
-      ngl::ShaderLib::linkProgramObject(shaderName);
-      ngl::ShaderLib::use(shaderName);
+      ngl::ShaderLib::linkProgramObject(_shaderName);
+      ngl::ShaderLib::use(_shaderName);
       loadShaderDefaults();
       loadMatricesToShader();
       //ngl::ShaderLib::printRegisteredUniforms("PBR");
@@ -192,20 +191,23 @@ void NGLScene::createShaderProgram(const std::string &_name, const std::string &
   ngl::ShaderLib::linkProgramObject( _name );
   ngl::ShaderLib::use(_name);
   loadShaderDefaults();
+  
   //ngl::ShaderLib::setUniform( "camPos", eye );
 }
 
 
 void NGLScene::resizeGL( int _w, int _h )
 {
-  m_project=ngl::perspective( 45.0f, static_cast<float>( _w ) / _h, 0.05f, 350.0f );
-  m_win.width  = static_cast<int>( _w * devicePixelRatio() );
-  m_win.height = static_cast<int>( _h * devicePixelRatio() );
+  m_project=ngl::perspective( m_params.CAM_FOV, static_cast<float>( _w ) / _h, 0.05f, 350.0f );
+  m_params.WIDTH  = static_cast<int>( _w * devicePixelRatio() );
+  m_params.HEIGHT = static_cast<int>( _h * devicePixelRatio() );
   updateDeferredSize();
 }
 
 transform NGLScene::getViewProjection()
 {
+    m_project=ngl::perspective( m_params.CAM_FOV, static_cast<float>( m_params.WIDTH ) / m_params.HEIGHT, 0.05f, 350.0f );
+    
     m_VP.V = m_v_trans*m_view*m_v_rot*m_v_scale;
     m_VP.P = m_project;
     m_VP.VP = m_VP.P * m_VP.V;

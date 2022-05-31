@@ -16,8 +16,8 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
   // pressed when the mousePress/Release event is generated
   if (_event->buttons() == Qt::LeftButton )
   {
-    int diffx = _event->x() - m_win.origX;
-    int diffy = _event->y() - m_win.origY;
+    int diffx = _event->x() - m_params.origX;
+    int diffy = _event->y() - m_params.origY;
 
     
     ngl::Mat4 temp_rot;
@@ -32,17 +32,17 @@ void NGLScene::mouseMoveEvent( QMouseEvent* _event )
 
 
 
-    m_win.origX = _event->x();
-    m_win.origY = _event->y();
+    m_params.origX = _event->x();
+    m_params.origY = _event->y();
     update();
   }
   // right mouse translate code
   else if (_event->buttons() == Qt::RightButton )
   {
-    int diffX      = static_cast<int>( _event->x() - m_win.origXPos );
-    int diffY      = static_cast<int>( _event->y() - m_win.origYPos );
-    m_win.origXPos = _event->x();
-    m_win.origYPos = _event->y();
+    int diffX      = static_cast<int>( _event->x() - m_params.origXPos );
+    int diffY      = static_cast<int>( _event->y() - m_params.origYPos );
+    m_params.origXPos = _event->x();
+    m_params.origYPos = _event->y();
 
     ngl::Mat4 temp_trans;
     temp_trans.identity();
@@ -64,14 +64,14 @@ void NGLScene::mousePressEvent( QMouseEvent* _event )
   //std::cout << "mouse pressed";
   if ( _event->button() == Qt::LeftButton )
   {
-    m_win.origX  = _event->x();
-    m_win.origY  = _event->y();
+    m_params.origX  = _event->x();
+    m_params.origY  = _event->y();
   }
   // right mouse translate mode
   else if ( _event->button() == Qt::RightButton )
   {
-    m_win.origXPos  = _event->x();
-    m_win.origYPos  = _event->y();
+    m_params.origXPos  = _event->x();
+    m_params.origYPos  = _event->y();
   }
 }
 
@@ -82,12 +82,12 @@ void NGLScene::mouseReleaseEvent( QMouseEvent* _event )
   // we then set Rotate to false
   if ( _event->button() == Qt::LeftButton )
   {
-    m_win.rotate = false;
+    m_params.rotate = false;
   }
   // right mouse translate mode
   if ( _event->button() == Qt::RightButton )
   {
-    m_win.translate = false;
+    m_params.translate = false;
   }
 }
 

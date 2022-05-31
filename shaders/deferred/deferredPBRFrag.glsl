@@ -16,6 +16,8 @@ uniform sampler2D gDepth;
 uniform float far_plane;
 uniform vec3 lightPos;
 
+uniform float shadowOffset;
+
 //LIGHT POS
 uniform vec3 lightPositions[@numLights];
 uniform vec3 lightColours[@numLights];
@@ -32,20 +34,38 @@ layout (std140) uniform InverseVP
 
 const float PI = 3.14159265359;
 
-uniform int type;
+const vec3 sampleOffsetDirections[20] = vec3[]
+(
+   vec3( 1,  1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1,  1,  1), 
+   vec3( 1,  1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1,  1, -1),
+   vec3( 1,  1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1,  1,  0),
+   vec3( 1,  0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1,  0, -1),
+   vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
+);   
+
 
 //https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
 float ShadowCalculationOmni(vec3 fragPos)
 {
     vec3 fragToLight = fragPos - lightPos; 
-    float closestDepth = texture(shadowCubeMap, fragToLight).r;
     
-    closestDepth *= far_plane;
+    //float closestDepth = texture(shadowCubeMap, fragToLight).r;
     
+    //closestDepth *= far_plane;
     float currentDepth = length(fragToLight);
-    // now test for shadows
-    float bias = 0.05; 
-    float shadow = currentDepth -  bias > closestDepth ? 1-(currentDepth-closestDepth)/far_plane : 0.0;
+    float shadow = 0.0;
+    float bias   = 0.15;
+    int samples  = 20;
+    float diskRadius = shadowOffset;
+    for(int i = 0; i < samples; ++i)
+    {
+        float closestDepth = texture(shadowCubeMap, fragToLight + sampleOffsetDirections[i] * diskRadius).r;
+        closestDepth *= far_plane;   // undo mapping [0;1]
+        if(currentDepth - bias > closestDepth)
+            shadow += 1.0; //((currentDepth-closestDepth)/far_plane)*50;
+    }
+    shadow /= float(samples);  
+
     return shadow;
 
     
@@ -194,7 +214,7 @@ void main()
         kD *= 1.0 - metallic;
 
         float NdotL = max(dot(N,L), 0.0);
-        Lo += ((kD * albedo / PI + specular) * radiance * NdotL)*min(1-shadow+i,1);
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL * min(1-shadow+i,1);;
     }
     
     vec3 ambient = vec3(0.03) * albedo * ao + emissive;
@@ -204,5 +224,5 @@ void main()
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2));
 
-     FragColour = vec4(color, 1.0);  
+    FragColour = vec4(color, 1.0);  
 }

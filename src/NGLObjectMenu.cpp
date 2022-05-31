@@ -105,9 +105,14 @@ void NGLObjectMenu::setupLightMenu()
 
 ngl::Vec3 NGLObjectMenu::getColourMenu(QWidget *w )
 {   
-    
     if( !w ) return ngl::Vec3(1.0f);;
-    QColor color = QColorDialog::getColor(Qt::yellow);
+    // auto dlg = new QColorDialog();
+    // std::cout << "\n\n" << dlg->frameGeometry().x() << "   " << dlg->frameGeometry().y();
+    // dlg->exec();
+    // auto color = dlg->selectedColor();
+    // std::cout << "\n\n" << dlg->frameGeometry().x() << "   " << dlg->frameGeometry().y() << std::endl;
+    auto prevCol = w->palette().color(QPalette::Window);
+    QColor color = QColorDialog::getColor(prevCol, w, QString(), QColorDialog::DontUseNativeDialog);
     if( color.isValid() )
     {  
         w->setStyleSheet( m_col_sheet.arg(color.name()) );
@@ -122,7 +127,7 @@ std::string NGLObjectMenu::loadImage(QAbstractButton *w)
 {
     auto path = QFileDialog::getOpenFileName(this, tr("Open Image File"), 
                                             "/", 
-                                            tr("Image Files (*.png *.jpg *.bmp)"));  
+                                            tr("Image Files (*.png *.jpg *.bmp)"),(QString *)nullptr, QFileDialog::DontUseNativeDialog);  
     if(path==NULL || path.toStdString() == "")
     {
         std::cout << "File empty.";
@@ -201,21 +206,30 @@ void NGLObjectMenu::setupMaterialMenu()
 
     QLabel *label_a = new QLabel();
     label_a->setText("AO: ");
-    vbox->addWidget(label_a,6,0);
+    vbox->addWidget(label_a,7,0);
 
-    vbox->addWidget(m_AO,6,1);
+    vbox->addWidget(m_AO,7,1);
     connect(this->m_AO, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double val){ m_m_ao = val;setObject();});
     m_AO->setRange(-1000.0,1000.0);
     m_AO->setSingleStep(0.1);
 
     QLabel *label_e = new QLabel();
     label_e->setText("Emissive: ");
-    vbox->addWidget(label_e,7,0);
+    vbox->addWidget(label_e,8,0);
 
-    vbox->addWidget(m_Emissive,7,1);
+    vbox->addWidget(m_Emissive,8,1);
     connect(this->m_Emissive, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double val){ m_m_emissive = val;setObject();});
     m_Emissive->setRange(-1000.0,1000.0);
     m_Emissive->setSingleStep(0.1);
+
+    QLabel *label_n = new QLabel();
+    label_n->setText("Normal Blend: ");
+    vbox->addWidget(label_n,9,0);
+
+    vbox->addWidget(m_Normal,9,1);
+    connect(this->m_Normal, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double val){ m_m_normal = val;setObject();});
+    m_Normal->setRange(-1000.0,1000.0);
+    m_Normal->setSingleStep(0.1);
 
     m_materialBox->setLayout(vbox);
     m_mainSplitter->addWidget(m_materialBox);
@@ -250,6 +264,7 @@ void NGLObjectMenu::setObject()
                 mesh->m_material.metallic = m_m_metallic;
                 mesh->m_material.ao = m_m_ao;
                 mesh->m_material.emissive = m_m_emissive;
+                mesh->m_material.normal = m_m_normal;
                 break;
             }
         }
@@ -315,6 +330,7 @@ void NGLObjectMenu::updateObject(std::shared_ptr<SceneObject> _obj)
             m_m_metallic = mesh->m_material.metallic;
             m_m_ao = mesh->m_material.ao;
             m_m_emissive = mesh->m_material.emissive;
+            m_m_normal = mesh->m_material.normal;
 
             auto col = QColor(  static_cast<int>(m_m_albedo.m_r*255.0),
                                 static_cast<int>(m_m_albedo.m_g*255.0),

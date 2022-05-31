@@ -73,11 +73,13 @@ class NGLObjectMenu : public QGroupBox
     QDoubleSpinBox * m_Metallic = new QDoubleSpinBox;
     QDoubleSpinBox * m_AO = new QDoubleSpinBox;
     QDoubleSpinBox * m_Emissive = new QDoubleSpinBox;
+    QDoubleSpinBox * m_Normal = new QDoubleSpinBox;
     ngl::Vec3 m_m_albedo;
     float m_m_rough;
     float m_m_metallic;
     float m_m_ao;
     float m_m_emissive;
+    float m_m_normal;
 
     std::shared_ptr<SceneObject> m_curObject;
 

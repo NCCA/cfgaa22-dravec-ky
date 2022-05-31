@@ -127,6 +127,7 @@ public:
     //Scene Addon
     bool insertSceneObject(int _pos, std::shared_ptr<SceneObject> _object, const QModelIndex &_parent = QModelIndex());
     bool removeSceneObject(const QModelIndex &_obj);
+    bool removeSceneObjectChildren(const QModelIndex &_obj = QModelIndex());
     std::shared_ptr<SceneObject> getSceneObject(const QModelIndex &_index);
     std::shared_ptr<SceneObject> getRootObject() const {return m_rootItem->sceneObject;}
 

@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), m_ui(new Ui::MainW
   m_gl = new  NGLScene(this);
   m_list = new NGLSceneTreeView(this);
   m_menu = new NGLObjectMenu(this);
-  m_settings = new NGLSceneMenu(this);
+  m_settings = new NGLSceneMenu(m_gl,this);
   
 
   SceneManager::initialize(m_gl, m_list, m_menu);
@@ -48,10 +48,23 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), m_ui(new Ui::MainW
   connect(m_ui->actionCylinder, &QAction::triggered, this, [this]{ loadObject("cylinder"); });
   connect(m_ui->actionTorus, &QAction::triggered, this, [this]{ loadObject("torus"); });
 
+  connect(m_ui->actionClear_Scene, &QAction::triggered, this, [this]{ SceneManager::clearScene(); });
+  connect(m_ui->actionCornell, &QAction::triggered, this, [this]{ m_gl->loadSceneCornell(); });
+  connect(m_ui->actionSad_Sponza, &QAction::triggered, this, [this]{ m_gl->loadSceneSponza(); });
+  connect(m_ui->actionPBR, &QAction::triggered, this, [this]{ m_gl->loadScenePBR(); });
+  connect(m_ui->actionLights, &QAction::triggered, this, [this]{ m_gl->loadSceneLights(); });
+  connect(m_ui->actionHallway, &QAction::triggered, this, [this]{ m_gl->loadScene1(); });
+
   connect(m_ui->actionPointLight, &QAction::triggered, this, [this]{ SceneManager::addLight(); });
   
   connect(m_gl,&QOpenGLWidget::frameSwapped, m_settings->m_fpsCounter, [this]{ m_settings->addToCounter();});
 
+  connect(m_gl,&QOpenGLWidget::frameSwapped, m_settings->m_camPos, [this]{
+                                            auto matrix = m_gl->getViewProjection().V.inverse();
+                                            m_settings->m_camPos->setText(QString(
+                                            fmt::format("Camera Position:\n {:.2f}  {:.2f}  {:.2f}",
+                                            matrix.m_30, matrix.m_31, matrix.m_32
+                                            ).c_str() ) ); });
   //SceneManager::addObject("mesh",SceneObject::ObjectType::MESH, "path");
   
 }
@@ -84,7 +97,7 @@ void MainWindow::loadObjectFromFile()
 {
   auto path = QFileDialog::getOpenFileName(this, tr("Open OBJ File"), 
                                             "/", 
-                                            tr("Obj Files (*.obj)"));  
+                                            tr("Obj Files (*.obj)"), (QString *)nullptr, QFileDialog::DontUseNativeDialog);   
   if(path==NULL)
   {
     std::cout << "File empty.";

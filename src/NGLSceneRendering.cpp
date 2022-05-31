@@ -17,21 +17,17 @@
 void NGLScene::paintGL()
 {
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &m_mainFBO);
-    //glCullFace(GL_BACK);
+    
     renderOmniShadowMaps();
-    //glCullFace(GL_FRONT);
 
-    renderDeferred();
-    //renderForward();
-    //renderTexture(m_gBufferAORoughnessMetallic)
-
+    (this->*f_executeRender)();
 
     glBindFramebuffer(GL_FRAMEBUFFER, m_mainFBO);
 }
 
 void NGLScene::initDeferred()
 {
-  std::cout << "\n\n\nWindow size during deferred init: " <<  m_win.height << " " << m_win.width;
+  std::cout << "\n\n\nWindow size during deferred init: " <<  m_params.HEIGHT << " " << m_params.WIDTH;
   //Note that we use GL_RGBA16F over GL_RGB16F as GPUs generally prefer 4-component 
   //formats over 3-component formats due to byte alignment; some drivers may fail 
   //to complete the framebuffer otherwise. 
@@ -62,7 +58,7 @@ void NGLScene::initDeferred()
   // - albedo buffer
   glGenTextures(1, &m_gBufferAlbedo);
   glBindTexture(GL_TEXTURE_2D, m_gBufferAlbedo);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_gBufferAlbedo, 0);
@@ -70,7 +66,7 @@ void NGLScene::initDeferred()
   // - metallic roughness ao buffer
   glGenTextures(1, &m_gBufferAORoughnessMetallic);
   glBindTexture(GL_TEXTURE_2D, m_gBufferAORoughnessMetallic);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_gBufferAORoughnessMetallic, 0);
@@ -78,7 +74,7 @@ void NGLScene::initDeferred()
   // - emissive
   glGenTextures(1, &m_gBufferEmissive);
   glBindTexture(GL_TEXTURE_2D, m_gBufferEmissive);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, m_gBufferEmissive, 0);
@@ -105,9 +101,9 @@ void NGLScene::initDeferred()
 }
 
 
-void NGLScene::loadShaderDefaults()
+void NGLScene::loadShaderDefaults(const std::string &_name)
 {
-  auto _name = ngl::ShaderLib::getCurrentShaderName();
+  ngl::ShaderLib::use(_name);
   if(_name == "PBR" || _name == "gBufferPBR")
   {
     ngl::ShaderLib::setUniform("shadowCubeMap",0);
@@ -116,6 +112,12 @@ void NGLScene::loadShaderDefaults()
     ngl::ShaderLib::setUniform("tex_Normal",3);
     ngl::ShaderLib::setUniform("tex_Emissive",4);
     
+    if(_name=="PBR")
+    {
+      ngl::ShaderLib::setUniform("shadowOffset",m_params.SHADOW_OFFSET);
+      ngl::ShaderLib::setUniform("shadowPreview",0);
+      
+    }
   }
   else if(_name=="DeferredPBR")
   {
@@ -125,24 +127,9 @@ void NGLScene::loadShaderDefaults()
     ngl::ShaderLib::setUniform("gNormal",3);
     ngl::ShaderLib::setUniform("gEmissive",4);
     ngl::ShaderLib::setUniform("gDepth",5);
-    
+    ngl::ShaderLib::setUniform("shadowOffset",m_params.SHADOW_OFFSET);
   }
 }
-
-
-void NGLScene::renderForward()
-{
-  glBindFramebuffer(GL_FRAMEBUFFER, m_mainFBO);
-  glViewport(0,0,m_win.width,m_win.height);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-    ngl::ShaderLib::use("PBR");
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthCubeMap);
-    SceneManager::draw("PBR");
-}
-
 
 void NGLScene::updateDeferredSize()
 {
@@ -153,26 +140,37 @@ void NGLScene::updateDeferredSize()
   // glBindTexture(GL_TEXTURE_2D, m_gBufferPosition);
   // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
   glBindTexture(GL_TEXTURE_2D, m_gBufferNormal);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
   glBindTexture(GL_TEXTURE_2D, m_gBufferAlbedo);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
   glBindTexture(GL_TEXTURE_2D, m_gBufferAORoughnessMetallic);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
   glBindTexture(GL_TEXTURE_2D, m_gBufferEmissive);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
   glBindTexture(GL_TEXTURE_2D, m_gBufferDepth);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 
 }
 
+bool NGLScene::setRenderFunction( void (NGLScene::*func)() )
+{
+    f_executeRender = func;
+    loadLightsToShader("PBR");
+    loadLightsToShader("DeferredPBR");
+    return true;
+}
+
 void NGLScene::renderDeferred()
 {
   glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
-  glViewport(0,0,m_win.width,m_win.height);
+  glViewport(0,0,m_params.WIDTH,m_params.HEIGHT);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     SceneManager::draw("gBufferPBR");
 
   glBindFramebuffer(GL_FRAMEBUFFER, m_mainFBO);
+  glViewport(0,0,m_params.WIDTH,m_params.HEIGHT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0,0.0,0.0,0.0);
     ngl::ShaderLib::use("DeferredPBR");
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthCubeMap);
@@ -196,10 +194,92 @@ void NGLScene::renderDeferred()
     ngl::VAOPrimitives::draw("screenQuad");
 }
 
+void NGLScene::renderWireframe()
+{
+  GLint prevMode;
+  glGetIntegerv(GL_POLYGON_MODE, &prevMode);
+  glBindFramebuffer(GL_FRAMEBUFFER, m_mainFBO);
+  glViewport(0,0,m_params.WIDTH,m_params.HEIGHT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+    SceneManager::draw("Unlit");
+  glPolygonMode(GL_FRONT_AND_BACK, prevMode);
+}
+
+void NGLScene::renderForward()
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, m_mainFBO);
+  glViewport(0,0,m_params.WIDTH,m_params.HEIGHT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0,0.0,0.0,0.0);
+
+    glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+    ngl::ShaderLib::use("PBR");
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthCubeMap);
+    SceneManager::draw("PBR");
+}
+
+void NGLScene::renderDeferredAlbedo()
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
+  glViewport(0,0,m_params.WIDTH,m_params.HEIGHT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    SceneManager::draw("gBufferPBR");
+
+  renderTexture(m_gBufferAlbedo);
+}
+
+void NGLScene::renderDeferredORM()
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
+  glViewport(0,0,m_params.WIDTH,m_params.HEIGHT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    SceneManager::draw("gBufferPBR");
+
+  renderTexture(m_gBufferAORoughnessMetallic);
+}
+
+void NGLScene::renderDeferredNormal()
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
+  glViewport(0,0,m_params.WIDTH,m_params.HEIGHT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    SceneManager::draw("gBufferPBR");
+
+  renderTexture(m_gBufferNormal);
+}
+
+void NGLScene::renderDeferredEmissive()
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, m_gBuffer);
+  glViewport(0,0,m_params.WIDTH,m_params.HEIGHT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    SceneManager::draw("gBufferPBR");
+
+  renderTexture(m_gBufferEmissive);
+}
+
+void NGLScene::renderShadowMap()
+{
+  glBindFramebuffer(GL_FRAMEBUFFER, m_mainFBO);
+  glViewport(0,0,m_params.WIDTH,m_params.HEIGHT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+    ngl::ShaderLib::use("PBR");
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthCubeMap);
+    ngl::ShaderLib::setUniform("shadowPreview",1);
+    SceneManager::draw("PBR");
+    ngl::ShaderLib::setUniform("shadowPreview",0);
+}
+
 void NGLScene::renderTexture(const GLuint &tex_id)
 {
   glBindFramebuffer(GL_FRAMEBUFFER, m_mainFBO);
-  glViewport(0,0,m_win.width,m_win.height);
+  glViewport(0,0,m_params.WIDTH,m_params.HEIGHT);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   ngl::ShaderLib::use("Screen");
   glActiveTexture(GL_TEXTURE0);

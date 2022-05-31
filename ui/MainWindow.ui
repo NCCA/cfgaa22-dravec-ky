@@ -108,7 +108,21 @@
     <addaction name="menuAdd"/>
     <addaction name="menuAdd_Light"/>
    </widget>
+   <widget class="QMenu" name="menuScene">
+    <property name="title">
+     <string>Scene</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="actionClear_Scene"/>
+    <addaction name="separator"/>
+    <addaction name="actionCornell"/>
+    <addaction name="actionSad_Sponza"/>
+    <addaction name="actionHallway"/>
+    <addaction name="actionPBR"/>
+    <addaction name="actionLights"/>
+   </widget>
    <addaction name="menuObject"/>
+   <addaction name="menuScene"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionLoad">
@@ -149,6 +163,36 @@
   <action name="actionPointLight">
    <property name="text">
     <string>Point Light</string>
+   </property>
+  </action>
+  <action name="actionCornell">
+   <property name="text">
+    <string>Cornell</string>
+   </property>
+  </action>
+  <action name="actionSad_Sponza">
+   <property name="text">
+    <string>Sad Sponza</string>
+   </property>
+  </action>
+  <action name="actionPBR">
+   <property name="text">
+    <string>PBR Preview</string>
+   </property>
+  </action>
+  <action name="actionLights">
+   <property name="text">
+    <string>Light Stress Test</string>
+   </property>
+  </action>
+  <action name="actionClear_Scene">
+   <property name="text">
+    <string>Clear Scene</string>
+   </property>
+  </action>
+  <action name="actionHallway">
+   <property name="text">
+    <string>Hallway</string>
    </property>
   </action>
  </widget>

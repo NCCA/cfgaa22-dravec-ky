@@ -5,6 +5,20 @@
 #include <ngl/Transformation.h>
 #include <QAbstractItemModel>
 
+struct Material
+{
+  std::vector<GLuint> textures;
+  std::vector<std::string> texture_paths;
+  std::vector<QImage> texture_icons;
+  
+  ngl::Vec3 albedo = ngl::Vec3(1.0f, 1.0f, 1.0f);
+  float metallic = 1.0f;
+  float roughness = 1.0f;
+  float ao = 1.0f;
+  float emissive = 1.0f;
+  float normal = 1.0f;
+};
+
 //structure based on https://learnopengl.com/Guest-Articles/2021/Scene/Scene-Graph
 //and https://doc.qt.io/qt-5/qtwidgets-itemviews-editabletreemodel-example.html
 class SceneObject
@@ -27,6 +41,8 @@ class SceneObject
     virtual void loadTexture(int _index, const std::string &_path) {};
     std::string getName() {return m_name;};
     void setName(const std::string &_name) {m_name = _name;};
+
+    virtual void setMaterialInfo(const Material &_mat) {};
 
     int indexOf(std::shared_ptr<SceneObject> _child) const;
 

@@ -10,9 +10,11 @@
 #include <QResizeEvent>
 #include <QOpenGLWidget>
 #include <memory>
+#include <ngl/ShaderLib.h>
 #include "SceneMesh.h"
 #include "SceneObject.h"
 #include "SceneLight.h"
+#include "RenderParams.h"
 
 /// @file NGLScene.h
 /// @brief a basic Qt GL window class for ngl demos
@@ -52,10 +54,10 @@ public :
 
 	void updateNumLights();
 	void updateLightInfo();
-	void loadLightsToShader();
+	void loadLightsToShader(const std::string &_shaderName = ngl::ShaderLib::getCurrentShaderName());
 
 
-	void loadShaderDefaults();
+	void loadShaderDefaults(const std::string &_shaderName = ngl::ShaderLib::getCurrentShaderName());
 	void setViewToSelected();
   transform getViewProjection();
 
@@ -66,22 +68,37 @@ public :
   void loadDirShadowMatrices();
   void loadOmniShadowMatrices();
 
+  void updateDirShadowSize();
+  void updateOmniShadowSize();
+
   void renderDirShadowMaps();
   void renderOmniShadowMaps();
 
   //DEFERRED RENDERING
   void initDeferred();
   void updateDeferredSize();
-  void renderDeferred();
+
+  bool setRenderFunction(void (NGLScene::*func)() );
   void renderForward();
+  void renderWireframe();
+
+  void renderDeferred();
+    void renderDeferredAlbedo();
+    void renderDeferredORM();
+    void renderDeferredNormal();
+    void renderDeferredEmissive();
+    
+    void renderShadowMap();
 
   void renderTexture(const GLuint &tex_id);
 
   //ASSETS
   void initDefaultAssets();
   void loadScene1();
-  void loadScene2() {};
-  void loadScene3() {};
+  void loadSceneCornell();
+  void loadSceneSponza();
+  void loadScenePBR();
+  void loadSceneLights();
 
   /// @brief function for loading shaders onto the ngl::ShaderLib
   void createShaderProgram(const std::string &_name, const std::string &_vertPath, const std::string &_fragPath, const std::string &_geoPath = "");
@@ -96,6 +113,8 @@ public :
   GLuint m_DefaultAORoughMet;
   GLuint m_DefaultNormal;
   GLuint m_DefaultEmissive;
+
+  RenderParams m_params;
 
 private:
 	/// @brief m_wireframe mode
@@ -113,6 +132,8 @@ private:
 	std::unique_ptr<ngl::Text> m_text;
 
   transform m_VP;
+
+  void (NGLScene::*f_executeRender)();
   
 protected:
   /// @brief  The following methods must be implimented in the sub class
@@ -131,6 +152,7 @@ protected:
   /// @brief the windows params such as mouse and rotations etc
   //----------------------------------------------------------------------------------------------------------------------
   WinParams m_win;
+  
 
   /// @brief Camera start location matrix
   ngl::Mat4 m_view;

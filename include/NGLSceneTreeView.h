@@ -16,6 +16,7 @@ class NGLSceneTreeView: public QTreeView
     ~NGLSceneTreeView() {}
     std::shared_ptr<SceneObject> getSceneRoot();
     bool removeSelected();
+    bool removeChildren(const QModelIndex &_idx = QModelIndex());
     std::shared_ptr<SceneObject> getSelectedObject();
 
   public slots:

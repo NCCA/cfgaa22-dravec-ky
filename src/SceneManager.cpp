@@ -8,6 +8,7 @@
 #include "SceneLight.h"
 
 #include <QFileDialog>
+#include <QItemSelectionModel>
 
 NGLScene * SceneManager::m_scene;
 NGLSceneTreeView * SceneManager::m_list;
@@ -99,7 +100,6 @@ std::shared_ptr<SceneObject> SceneManager::addObject(const std::string &_name, S
     }
 
     m_list->add(obj);  
-
     update();
     return obj;
     
@@ -132,8 +132,29 @@ bool SceneManager::removeSelectedObject()
         m_list->removeSelected();
         update();
     }
+    //clearScene();
     return true;
 }
+
+void SceneManager::clearScene()
+{
+    QModelIndex root = m_list->rootIndex();
+    auto idx = m_list->model()->index(0,0,m_list->rootIndex());
+    m_list->selectionModel()->setCurrentIndex(idx,QItemSelectionModel::Select);
+
+    while(m_selected)
+    {
+        if(m_selected->getType()==SceneObject::ObjectType::LIGHT)
+        {
+            m_scene->m_lights.erase(std::static_pointer_cast<SceneLight>(m_selected)->getID());
+            m_scene->updateNumLights();
+            std::cout << "\nLights: " << m_scene->m_lights.size();
+        }
+        m_list->removeSelected();
+        update();
+    }
+}
+
 
 void SceneManager::update()
 {

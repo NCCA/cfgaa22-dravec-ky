@@ -8,21 +8,26 @@
 #include <QBoxLayout>
 #include <QPushButton>
 #include <QLabel>
+#include "NGLScene.h"
 
 //base class definition from https://doc.qt.io/archives/4.6/model-view-creating-models.html
 class NGLSceneMenu : public QGroupBox
 {
     Q_OBJECT
   public:
-    NGLSceneMenu(QWidget *parent = nullptr);
+    NGLSceneMenu(NGLScene *scene, QWidget *parent = nullptr);
     ~NGLSceneMenu() {};
     QLabel * m_fpsCounter = new QLabel();
+    QLabel * m_camPos = new QLabel();
     void addToCounter();
   public slots:
 
   private:
+    void setupInfoMenu();
     void setupRenderMenu();
+    void setupShadowMenu();
 
+    NGLScene * m_scene;
 
     QBoxLayout * m_mainLayout = new QBoxLayout(QBoxLayout::Direction::TopToBottom);
 

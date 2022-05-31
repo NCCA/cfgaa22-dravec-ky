@@ -64,10 +64,10 @@ void SceneMesh::initMaterial()
 
 void SceneMesh::loadTexture(int _index, const std::string &_path)
 {
-    std::cout << "\nTrying to replace " << m_material.texture_paths[_index] << " with " << _path;
-    ngl::Texture tex = ngl::Texture();
+    //std::cout << "\nTrying to replace " << m_material.texture_paths[_index] << " with " << _path;
     if(_path!="" && _path != m_material.texture_paths[_index])
-    {
+    {   
+        ngl::Texture tex = ngl::Texture();
         std::cout <<std::endl<< m_name << " loading texture " << _path << std::endl << std::endl;
         bool success = tex.loadImage(_path);
         if(success)
@@ -92,8 +92,21 @@ void SceneMesh::loadTexture(int _index, const std::string &_path)
     }
 }
 
+void SceneMesh::setMaterialInfo(const Material &mat)
+{
+    m_material.albedo = mat.albedo;
+    m_material.metallic = mat.metallic;
+    m_material.roughness = mat.roughness;
+    m_material.ao = mat.ao;
+    m_material.emissive = mat.emissive;
+    m_material.normal = mat.normal;
+}
+
 void SceneMesh::loadMaterialToShader()
 {
+    int isPrimitive = m_type==SceneObject::ObjectType::PRIMITIVE ? 1 : 0;
+    if(m_material.texture_paths[2]=="" || isPrimitive) m_material.normal = 0;
+
     ngl::ShaderLib::setUniform("inAlbedo",    m_material.albedo.m_r,
                                             m_material.albedo.m_g,
                                             m_material.albedo.m_b);
@@ -101,8 +114,8 @@ void SceneMesh::loadMaterialToShader()
     ngl::ShaderLib::setUniform("inRoughness", m_material.roughness);
     ngl::ShaderLib::setUniform("inAO",        m_material.ao);
     ngl::ShaderLib::setUniform("inEmissive",        m_material.emissive);
-    ngl::ShaderLib::setUniform("useNormalMap", 
-            m_type==SceneObject::ObjectType::PRIMITIVE ? 0 : 1);
+    ngl::ShaderLib::setUniform("inNormalMult", 
+            m_material.normal);
 
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, m_material.textures[0]);
@@ -334,6 +347,8 @@ void SceneMesh::createVAO()
 SceneMesh::~SceneMesh()
 {
     m_vao.release();
+    for(int i=0;i<m_material.texture_paths.size();++i)
+        if(m_material.texture_paths[i]!= "") glDeleteTextures(1, &m_material.textures[i]);
     std::cout << "Scene Mesh deleted!";
     
 }

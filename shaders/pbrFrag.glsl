@@ -22,8 +22,10 @@ uniform float inMetallic;
 uniform float inRoughness;
 uniform float inAO;
 uniform float inEmissive;
+uniform float inNormalMult;
 
-uniform int useNormalMap;
+uniform int shadowPreview;
+uniform float shadowOffset;
 
 //uniform sampler2D shadowMap;
 
@@ -39,18 +41,38 @@ uniform float exposure;
 
 const float PI = 3.14159265359;
 
+const vec3 sampleOffsetDirections[20] = vec3[]
+(
+   vec3( 1,  1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1,  1,  1), 
+   vec3( 1,  1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1,  1, -1),
+   vec3( 1,  1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1,  1,  0),
+   vec3( 1,  0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1,  0, -1),
+   vec3( 0,  1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0,  1, -1)
+);   
+
 //https://learnopengl.com/Advanced-Lighting/Shadows/Point-Shadows
 float ShadowCalculationOmni(vec3 fragPos)
 {
     vec3 fragToLight = fragPos - lightPos; 
-    float closestDepth = texture(shadowCubeMap, fragToLight).r;
     
-    closestDepth *= far_plane;
+    //float closestDepth = texture(shadowCubeMap, fragToLight).r;
     
+    //closestDepth *= far_plane;
     float currentDepth = length(fragToLight);
-    // now test for shadows
-    float bias = 0.05; 
-    float shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;
+    float shadow = 0.0;
+    float bias   = 0.15;
+    int samples  = 20;
+
+    float diskRadius = shadowOffset;
+    for(int i = 0; i < samples; ++i)
+    {
+        float closestDepth = texture(shadowCubeMap, fragToLight + sampleOffsetDirections[i] * diskRadius).r;
+        closestDepth *= far_plane;   // undo mapping [0;1]
+        if(currentDepth - bias > closestDepth)
+            shadow += 1.0; //((currentDepth-closestDepth)/far_plane)*50;
+    }
+    shadow /= float(samples);  
+
     return shadow;
 
     
@@ -134,8 +156,8 @@ void main()
 {		
     //vec3 Normal = Normal;
     vec3 albedo = texture(tex_Albedo, TexCoords).rgb;
-    albedo = albedo / (albedo + vec3(1.0));
-    albedo = pow(albedo, vec3(1.0/2.2)) * inAlbedo;
+    albedo *= inAlbedo;
+
     float metallic = texture(tex_AORoughMet, TexCoords).b * inMetallic + max(inMetallic-1,0);
     float roughness = texture(tex_AORoughMet, TexCoords).g*inRoughness + max(inRoughness-1,0);
     float ao = texture(tex_AORoughMet, TexCoords).r * inAO + max(inAO-1,0);
@@ -143,10 +165,8 @@ void main()
 
     vec3 WorldPos3 = WorldPos.rgb;
     vec3 N;
-    if(useNormalMap==1)
-        N = normalize(TBN*(texture(tex_Normal, TexCoords).rgb*2.0-1.0));
-    else
-        N = Normal;
+    
+    N = max(normalize(TBN*(texture(tex_Normal, TexCoords).rgb*2.0-1.0)),0)*inNormalMult + Normal*(1-inNormalMult);
     vec3 V = normalize(camPos - WorldPos3);
 
     //surface reflection at zero incidence
@@ -187,16 +207,19 @@ void main()
         vec3 kD = vec3(1.0) - kS;
         //since metallic don't refract, we multiply
         kD *= 1.0 - metallic;
+        
 
         float NdotL = max(dot(N,L), 0.0);
+        //FragColour = vec4(vec3(NdotL), 1.0);  
         Lo += (kD * albedo / PI + specular) * radiance * NdotL*min(1-shadow+i,1);
     }
     
     vec3 ambient = vec3(0.03) * albedo * ao;
-    vec3 color = ambient + Lo + emissive;
+    vec3 color = (ambient + Lo + emissive);// * min((1-shadow)*25,1);
     //tonemapping HDR color using Reinhard operator
     color = color / (color + vec3(1.0));
     color = pow(color, vec3(1.0/2.2));
+    vec4 output = vec4(color, 1.0)*(1-shadowPreview) + vec4(vec3(shadow),1)*shadowPreview;  
 
-    FragColour = vec4(color, 1.0);  
+    FragColour = output;
 }
