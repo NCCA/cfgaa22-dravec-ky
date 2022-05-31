@@ -3,7 +3,7 @@
 ## A Simple Open-GL Renderer
 My final assignment is a basic Open-GL renderer. Currently this program supports or implements the following features:
 
-<img align="center" src="./images/main.png" width=900 >
+<img align="middle" src="./images/main.png" width=900 >
 
 - **Forward & Deferred Rendering**
 - **Multiple Light PBR shading**
@@ -57,7 +57,7 @@ Using one of the NGL examples I created support for loading in multiple point li
 #### PBR shading
 Using the previously mentioned [LearnOpenGL Tutorials](https://learnopengl.com/PBR/Theory), I implemented a basic PBR shading model. It supports loading in albedo, occlusion/roughness/metallic, normal and emissive textures, with additional multiplier parameters for each one. Unfortunately, I didn't have time to completely finish it and include things like [Diffuse Irradiance](https://learnopengl.com/PBR/IBL/Diffuse-irradiance).
 
-<img align="center" src="./images/pbr.png" width=600>
+<img align="middle" src="./images/pbr.png" width=600>
 
 #### Shadow Mapping
 After initially testing out shadow-mapping using a directional light and a simple 2D texture, I proceeded to implement **omni-directional point light shadow-mapping** using cubemaps and geometry shaders to project the scene onto every side of the cube in a single shader pass. My next goal would be to turn this output cubemap into an array of atleast 4 point lights - my renderer currently only supports one shadow caster, which is always the last light loaded into the scene. I did have time to implement some optimizations, like **Percentage Closer Filtering** and **front culling** to remove some of the more apparent shadow artifacts.
@@ -65,7 +65,7 @@ After initially testing out shadow-mapping using a directional light and a simpl
 #### Deferred vs. Forward Experiment
 During my implementation of deferred rendering I learnt that deferred rendering is preferred for lighting calculations with many point lights & objects in the scene, therefore I wanted to test if my implementations held by the same rules. I have included a scene called *Light Stress Test*, which includes about 300 Utah teapots and as many point lights randomly floating in space. While rendering this scene there was about 20 FPS difference between the deferred shader and the forward shader, which was very noticeable. Of course, my program isn't perfectly optimized, so I bet with a proper renderer that would definitely be even more.
 
-<img align="center" src="./images/stresstest.png" width=600>
+<img align="middle" src="./images/stresstest.png" width=600>
 
 #### Optimization
 Although I am not an experienced C++ user, I tried my best to keep everything tidy and prevent unwanted performance impacts and memory leaks. I made sure that during memory heavy allocations, like creating textures (or anything to do with OpenGL), I properly disposed of the leftover data after it was no longer needed.
