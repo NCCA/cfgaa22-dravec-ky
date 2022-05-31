@@ -10,7 +10,7 @@
 MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), m_ui(new Ui::MainWindow)
 {
   m_ui->setupUi(this);
-
+  this->setWindowTitle(QString("MyOpenGLRenderer 0.9"));
   m_gl = new  NGLScene(this);
   m_list = new NGLSceneTreeView(this);
   m_menu = new NGLObjectMenu(this);

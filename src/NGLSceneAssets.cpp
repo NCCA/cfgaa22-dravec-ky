@@ -47,9 +47,6 @@ void NGLScene::initDefaultAssets()
   ngl::VAOPrimitives::createSphere("sphere",1,64);
   ngl::VAOPrimitives::createSphere("lightSphere",1,8);
   createScreenQuad();
-
-  auto tex = ngl::Texture("../textures/rustediron2_basecolor.png");
-  m_test_tex_id = tex.setTextureGL();
 }
 
 void NGLScene::loadScene1()
