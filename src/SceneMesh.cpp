@@ -301,7 +301,7 @@ void SceneMesh::createVAO()
     vboMesh.push_back(d);
     }
   }
-	//m_vao = ngl::VAOFactory::createVAO("simpleVAO");
+	m_vao = ngl::VAOFactory::createVAO("simpleVAO");
     //std::cout << "\nFinished tangent calculation.";
 	m_vao->bind();
 	unsigned int meshSize=vboMesh.size();

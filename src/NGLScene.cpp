@@ -76,7 +76,7 @@ void NGLScene::initializeGL()
 }
 void NGLScene::updateNumLights()
 {
-    int numLights = m_lights.size();
+    int numLights = (int)m_lights.size();
     numLights = std::max(numLights,1);
     m_lightInfoArray.resize(numLights);
 
