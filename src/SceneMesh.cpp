@@ -215,13 +215,13 @@ void SceneMesh::createVAO()
   std::vector <ngl::Vec3> tex=m_obj->getUVList();
   std::vector <ngl::Vec3> normals=m_obj->getNormalList();
 
-	std::cout<<"got mesh data\n";
+	//std::cout<<"got mesh data\n";
 	std::vector <vertData> vboMesh;
 	vertData d;
 	unsigned int nFaces=faces.size();
 	unsigned int nNorm=normals.size();
 	unsigned int nTex=tex.size();
-    std::cout << "\n faces: " << nFaces;
+    //std::cout << "\n faces: " << nFaces;
 	// loop for each of the faces
 	for(unsigned int i=0;i<nFaces;++i)
 	{
@@ -301,8 +301,8 @@ void SceneMesh::createVAO()
     vboMesh.push_back(d);
     }
   }
-	m_vao = ngl::VAOFactory::createVAO("simpleVAO");
-    std::cout << "\nFinished tangent calculation.";
+	//m_vao = ngl::VAOFactory::createVAO("simpleVAO");
+    //std::cout << "\nFinished tangent calculation.";
 	m_vao->bind();
 	unsigned int meshSize=vboMesh.size();
 	// now we have our data add it to the VAO, we need to tell the VAO the following
@@ -320,21 +320,21 @@ void SceneMesh::createVAO()
         for(GLfloat val : vertData)
             meshData.push_back(val);
     }
-    std::cout << "\nSorted vertices to GLfloat vector.";
+    //std::cout << "\nSorted vertices to GLfloat vector.";
 	auto data = ngl::AbstractVAO::VertexData(meshData.size()*sizeof(GLfloat),meshData[0]);
     //inPos
     m_vao->setData(data);
 	m_vao->setVertexAttributePointer(0,3,GL_FLOAT,sizeof(GLfloat)*14,0);
-    std::cout<<"\npos";
+    //std::cout<<"\npos";
     //inN
 	m_vao->setVertexAttributePointer(1,3,GL_FLOAT,sizeof(GLfloat)*14,5);
-    std::cout<<"\nn";
+    //std::cout<<"\nn";
     //inUV
 	m_vao->setVertexAttributePointer(2,2,GL_FLOAT,sizeof(GLfloat)*14,3);
-    std::cout<<"\nuv";
+    //std::cout<<"\nuv";
     //Tangent
 	m_vao->setVertexAttributePointer(3,3,GL_FLOAT,sizeof(GLfloat)*14,8);
-    std::cout<<"\nt";
+    //std::cout<<"\nt";
     //Bi-Tangent
     m_vao->setVertexAttributePointer(4,3,GL_FLOAT,sizeof(GLfloat)*14,11);
     std::cout << "\nCreated vao with " << meshSize << " vertices.";

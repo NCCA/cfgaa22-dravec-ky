@@ -24,9 +24,6 @@ void SceneLight::draw(const std::string &_shaderName)
         ngl::ShaderLib::use("Unlit");
         SceneManager::loadCameraMatrixToCurrentShader();
 
-        //matrix = vp.VP;
-        //ngl::ShaderLib::setUniformMatrix4fv("spriteVP",&matrix.m_00);
-
         ngl::ShaderLib::setUniformMatrix4fv("inTransform",&matrix.m_00);
         if(isSelected) ngl::ShaderLib::setUniform("inCol",ngl::Vec4(m_colour, 0.5));
         else ngl::ShaderLib::setUniform("inCol",ngl::Vec4(m_colour, 0.2));

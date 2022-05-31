@@ -58,7 +58,7 @@ void NGLSceneTreeView::selectionChanged(const QItemSelection &selected, const QI
     if(isLoaded)
     {
         selectionChangedSignal();
-        std::cout << "selection chnaged";
+        //std::cout << "selection chnaged";
         SceneManager::updateSelection();
     }
 }

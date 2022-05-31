@@ -26,18 +26,6 @@ public slots:
 
     void setTranslateX(double _val);
     void updateMenu();
-    // void setTranslateY(double _val);
-    // void setTranslateZ(double _val);
-
-    // void setRotateX(double _val);
-    // void setRotateY(double _val);
-    // void setRotateZ(double _val);
-
-    // void setScaleX(double _val);
-    // void setScaleY(double _val);
-    // void setScaleZ(double _val);
-
-    // void setVisibility(bool _val);
 
 private:
         

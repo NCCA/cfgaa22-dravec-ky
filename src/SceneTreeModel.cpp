@@ -124,9 +124,9 @@ bool SceneTreeModel::removeSceneObject(const QModelIndex &_index)
     beginRemoveRows(parent_index, pos, pos);
     
     parentItem->sceneObject->removeChild(pos);
-    std::cout << "removed scene object, removing child";
+    //std::cout << "removed scene object, removing child";
     const bool success = parentItem->removeChildObject(pos);
-    std::cout << "child removed";
+    //std::cout << "child removed";
     endRemoveRows();
 
     return true;

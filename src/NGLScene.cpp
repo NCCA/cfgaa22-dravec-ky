@@ -42,14 +42,6 @@ void NGLScene::initializeGL()
 
   loadSceneCornell();
 
-  //std::shared_ptr<SceneObject> obj;
-  // for(int i=0;i<10;i++)
-  // {
-  //   obj = SceneManager::addObject("", SceneManager::ObjectType::PRIMITIVE, "teapot");
-  //   obj->transform.setPosition(ngl::Vec3(i));
-  //   SceneManager::update();
-  // }
-
   m_text=std::make_unique<ngl::Text>("fonts/Arial.ttf",18);
   m_text->setScreenSize(this->size().width(),this->size().height());
   m_text->setColour(1.0,1.0,1.0);
@@ -60,7 +52,6 @@ void NGLScene::initializeGL()
 
   //BASE
   createShaderProgram("PBR", "shaders/pbrVertex.glsl", "shaders/pbrFrag.glsl");
-  createShaderProgram("Sprite", "shaders/spriteVertex.glsl", "shaders/spriteFrag.glsl");
   createShaderProgram("Unlit", "shaders/pbrVertex.glsl", "shaders/unlitFrag.glsl");
 
   //SHADOW MAPS
@@ -93,14 +84,12 @@ void NGLScene::updateNumLights()
     std::cout << "\nSetting num of lights to " << numLights;
 
     std::string shadersToEdit[] = {"pbrFrag", "deferredPBRFrag"};
-    //std::string programNames[] = {"PBR"};
 
     for(int i=0;i<2;i++)
     {
         if(ngl::ShaderLib::getShader(shadersToEdit[i])!=nullptr)
         {
           auto &_shader = shadersToEdit[i];
-          //auto &_shaderProgram = programNames[i];
           ngl::ShaderLib::resetEdits(_shader);
           ngl::ShaderLib::editShader(_shader,"@numLights",std::to_string(numLights));
           ngl::ShaderLib::compileShader(_shader);
@@ -140,7 +129,6 @@ void NGLScene::loadLightsToShader(const std::string &_shaderName)
       ngl::ShaderLib::use(_shaderName);
       loadShaderDefaults();
       loadMatricesToShader();
-      //ngl::ShaderLib::printRegisteredUniforms("PBR");
       for(int i=0;i<m_lightInfoArray.size();i++)    //Create shadow depth frame buffer
       {
           ngl::ShaderLib::setUniform(fmt::format("lightColours[{0}]",i),m_lightInfoArray[i].col);
@@ -154,9 +142,9 @@ void NGLScene::loadLightsToShader(const std::string &_shaderName)
 void NGLScene::createShaderProgram(const std::string &_name, const std::string &_vertPath, const std::string &_fragPath,const std::string &_geoPath)
 {
   std::string vertName, fragName, geoName;
-  //ugly syntax - im sorry
   ngl::ShaderLib::createShaderProgram( _name );
 
+  //ugly syntax - im sorry
   vertName = QString(_vertPath.c_str()).split("/").last().split(".").first().toStdString();
   ngl::ShaderLib::attachShader( vertName, ngl::ShaderType::VERTEX );
   ngl::ShaderLib::loadShaderSource( vertName, _vertPath );
@@ -191,8 +179,6 @@ void NGLScene::createShaderProgram(const std::string &_name, const std::string &
   ngl::ShaderLib::linkProgramObject( _name );
   ngl::ShaderLib::use(_name);
   loadShaderDefaults();
-  
-  //ngl::ShaderLib::setUniform( "camPos", eye );
 }
 
 

@@ -9,6 +9,7 @@
 
 MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), m_ui(new Ui::MainWindow)
 {
+  //Initialize all widgets
   m_ui->setupUi(this);
   this->setWindowTitle(QString("MyOpenGLRenderer 0.9"));
   m_gl = new  NGLScene(this);
@@ -16,30 +17,16 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), m_ui(new Ui::MainW
   m_menu = new NGLObjectMenu(this);
   m_settings = new NGLSceneMenu(m_gl,this);
   
-
   SceneManager::initialize(m_gl, m_list, m_menu);
 
   m_ui->s_mainWindowSplitter->insertWidget(0, m_gl);
   m_ui->s_mainWindowSplitter->insertWidget(0, m_settings);
   m_ui->s_menuSplitter->insertWidget(0, m_menu);
   m_ui->s_menuSplitter->insertWidget(0, m_list);
-  //this->setFocusPolicy(Qt::FocusPolicy::StrongFocus);
-
-
-  //m_ui->s_listGridLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
-  //m_ui->s_listGridLayout->SetFixedSize()
-  // m_ui->m_translateX->setValue(8);
-  // m_ui->m_translateY->setValue(5);
-  // m_ui->m_translateZ->setValue(5);
-
-  //connect(m_ui->m_wireframe,SIGNAL(toggled(bool)),m_gl,SLOT(toggleWireframe(bool)));
-  // set the rotation signals
-  // connect(m_ui->m_translateX,SIGNAL(valueChanged(double)),this,SLOT(setTranslateX(double)));
-  // connect(m_ui->m_translateY,SIGNAL(valueChanged(double)),this,SLOT(setTranslateY(double)));
-  // connect(m_ui->m_translateZ,SIGNAL(valueChanged(double)),this,SLOT(setTranslateZ(double)));
   
-  connect(m_list,SIGNAL(selectionChangedSignal()),this,SLOT(updateMenu()));
 
+  //Top menu signals
+  connect(m_list,SIGNAL(selectionChangedSignal()),this,SLOT(updateMenu()));
   connect(m_ui->actionLoad, &QAction::triggered, this, [this]{ loadObjectFromFile(); });
   connect(m_ui->actionCube, &QAction::triggered, this, [this]{ loadObject("cube"); });
   connect(m_ui->actionSphere, &QAction::triggered, this, [this]{ loadObject("sphere"); });
@@ -57,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), m_ui(new Ui::MainW
 
   connect(m_ui->actionPointLight, &QAction::triggered, this, [this]{ SceneManager::addLight(); });
   
+
+  //FPS counter and live camera position
   connect(m_gl,&QOpenGLWidget::frameSwapped, m_settings->m_fpsCounter, [this]{ m_settings->addToCounter();});
 
   connect(m_gl,&QOpenGLWidget::frameSwapped, m_settings->m_camPos, [this]{
@@ -65,7 +54,6 @@ MainWindow::MainWindow(QWidget *parent) :QMainWindow(parent), m_ui(new Ui::MainW
                                             fmt::format("Camera Position:\n {:.2f}  {:.2f}  {:.2f}",
                                             matrix.m_30, matrix.m_31, matrix.m_32
                                             ).c_str() ) ); });
-  //SceneManager::addObject("mesh",SceneObject::ObjectType::MESH, "path");
   
 }
 
@@ -120,8 +108,6 @@ void MainWindow::keyPressEvent(QKeyEvent * _event)
   if(_event->key() == Qt::Key_F)
   {
     m_gl->setViewToSelected();
-    //m_mesh = SceneManager::addObject("mesh",SceneObject::ObjectType::MESH, "path");
-
   }
   update();
 }

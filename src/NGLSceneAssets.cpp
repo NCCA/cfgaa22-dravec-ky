@@ -64,9 +64,6 @@ void NGLScene::loadScene1()
   SceneManager::addLight(ngl::Vec3(-3,3,0),10, ngl::Vec3(1.0f,0.0f,0.0f));
   SceneManager::addLight(ngl::Vec3(0.0,10.5,8.1),100, ngl::Vec3(1.0f,1.0f,0.5f));
 
-  //auto obj = SceneManager::addObject("plane", SceneObject::ObjectType::PRIMITIVE, "plane");
-  //obj->transform.setPosition(0.0f,-0.5f,0.0f);
-  //obj->transform.setScale(10.0,10.0f,10.0f);
   auto obj = SceneManager::addObject("teapot", SceneObject::ObjectType::PRIMITIVE, "teapot");
   obj->transform.setPosition(0,1,0);
   obj.reset();
@@ -186,8 +183,6 @@ void NGLScene::loadSceneSponza()
 
   SceneManager::addLight(ngl::Vec3(12.6,3.9,-0.4),80, ngl::Vec3(1.0f,0.3f,0.0f));
   SceneManager::addLight(ngl::Vec3(1.3,6.4,-0.2),50, ngl::Vec3(0.0f,0.25f,0.5f));
-  //SceneManager::addLight(ngl::Vec3(-0.6,1.8,4.2),10, ngl::Vec3(1.0f,0.3f,0.0f));
-  //SceneManager::addLight(ngl::Vec3(-0.5,1.9,-4.7),20, ngl::Vec3(1.0f,0.3f,0.0f));
 
   auto obj =       SceneManager::addObject("sponza", 
                   SceneObject::ObjectType::MESH, 

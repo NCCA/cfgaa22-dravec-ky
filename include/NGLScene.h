@@ -102,11 +102,9 @@ public :
 
   /// @brief function for loading shaders onto the ngl::ShaderLib
   void createShaderProgram(const std::string &_name, const std::string &_vertPath, const std::string &_fragPath, const std::string &_geoPath = "");
+
   /// @brief unordered map of all scene lights
-
   std::unordered_map<int,std::shared_ptr<SceneLight>> m_lights;
-
-  const unsigned int m_SHADOW_WIDTH = 1024, m_SHADOW_HEIGHT = 1024;
   
   //DEFAULT PBR TEXTURES
   GLuint m_DefaultAlbedo;
@@ -114,6 +112,7 @@ public :
   GLuint m_DefaultNormal;
   GLuint m_DefaultEmissive;
 
+  //render parameters
   RenderParams m_params;
 
 private:
@@ -176,18 +175,16 @@ private :
 
   void createScreenQuad();
 
-  //SHADOW PASS
+  ///@brief id of Qt's main textureBuffer
   GLint m_mainFBO;
 
-  
+  //SHADOW PASS BUFFERS & TEXTURES
   GLuint m_depthMapFBO;
   GLuint m_depthMap;
 
   GLuint m_depthCubeMapFBO;
   GLuint m_depthCubeMap;
 
-
-  std::shared_ptr<SceneObject> m_omniLight;
 	std::vector<LightInfo> m_lightInfoArray;
 
   //DEFERRED RENDERING
@@ -198,11 +195,6 @@ private :
   GLuint m_gBufferAORoughnessMetallic;
   GLuint m_gBufferDepth;
   GLuint m_gBufferEmissive;
-
-
-  //TEMP VARS
-	std::shared_ptr<SceneObject> m_mesh;
-  GLuint m_test_tex_id;
   
 };
 

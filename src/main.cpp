@@ -1,6 +1,7 @@
 #include <QApplication>
 #include "MainWindow.h"
 
+//main function from https://github.com/NCCA/QtNGL
 int main(int argc, char **argv)
 {
   // create an OpenGL format specifier

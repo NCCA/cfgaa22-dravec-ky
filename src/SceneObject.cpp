@@ -48,7 +48,7 @@ void SceneObject::addChild(std::shared_ptr<SceneObject> _child)
 bool SceneObject::removeChild(int index)
 {
     
-    std::cout << "Instances before deleting from parent: "<<m_children[index].use_count() << std::endl;
+    //std::cout << "Instances before deleting from parent: "<<m_children[index].use_count() << std::endl;
     m_children.erase(m_children.begin() + index);
     
     return true;

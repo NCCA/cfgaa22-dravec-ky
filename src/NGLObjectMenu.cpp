@@ -20,7 +20,6 @@ NGLObjectMenu::NGLObjectMenu(QWidget *_parent)
 
     m_mainLayout->addWidget(m_mainSplitter);
     m_mainSplitter->setOrientation(Qt::Orientation::Vertical);
-    //m_transformBox->setSizePolicy(QSizePolicy::Fixed);
 
     this->setLayout(m_mainLayout);
 }
@@ -87,8 +86,6 @@ void NGLObjectMenu::setupLightMenu()
     connect(this->m_lightIntensity, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double val){ m_l_int = val;setObject();});
     m_lightIntensity->setRange(-1000.0,1000.0);
     m_lightIntensity->setSingleStep(0.1);
-    // connect(box, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=](double val){ m_pos[i] = val; setObject();});
-    // i++;
 
     //https://forum.qt.io/topic/88140/how-to-apply-colors-to-a-box-subwindow-within-mainwindow/8
     QLabel *label_c = new QLabel();
@@ -307,10 +304,6 @@ void NGLObjectMenu::updateObject(std::shared_ptr<SceneObject> _obj)
             auto mesh = std::static_pointer_cast<SceneMesh>(m_curObject);
             
             QImage img;
-
-            // auto size = mesh->m_material.textures.size();
-            // m_textures.resize(size);
-            // m_texture_paths.resize(size);
 
             for(int i=0;i<4;++i)
             {
