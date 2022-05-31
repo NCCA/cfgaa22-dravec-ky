@@ -102,9 +102,9 @@ void NGLScene::loadOmniShadowMatrices()
   ngl::Vec3 lightPos = m_lightInfoArray[0].pos;
 
   float aspect = (float)m_params.SHADOW_WIDTH / (float)m_params.SHADOW_HEIGHT;
-  float near = 1.0f;
-  float far = 25.0f;
-  ngl::Mat4 shadowProj = ngl::perspective(90.0f, aspect, near, far); 
+  float near_plane = 1.0f;
+  float far_plane = 25.0f;
+  ngl::Mat4 shadowProj = ngl::perspective(90.0f, aspect, near_plane, far_plane); 
 
   //6 view directions, each taking one face of the cubemap
   std::vector<ngl::Mat4> shadowTransforms;
@@ -126,13 +126,13 @@ void NGLScene::loadOmniShadowMatrices()
      ngl::ShaderLib::setUniformMatrix4fv(fmt::format("shadowMatrices[{0}]",i),&shadowTransforms[i].m_00);
 
   ngl::ShaderLib::setUniform("lightPos",lightPos);
-  ngl::ShaderLib::setUniform("far_plane",far);
+  ngl::ShaderLib::setUniform("far_plane",far_plane);
   ngl::ShaderLib::use("PBR");
   ngl::ShaderLib::setUniform("lightPos",lightPos);
-  ngl::ShaderLib::setUniform("far_plane", far);
+  ngl::ShaderLib::setUniform("far_plane", far_plane);
   ngl::ShaderLib::use("DeferredPBR");
   ngl::ShaderLib::setUniform("lightPos",lightPos);
-  ngl::ShaderLib::setUniform("far_plane", far);
+  ngl::ShaderLib::setUniform("far_plane", far_plane);
 
 }
 
